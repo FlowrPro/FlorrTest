@@ -1,6 +1,5 @@
-// Scene setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb); // light blue sky
+scene.background = new THREE.Color(0x87ceeb); // fallback sky color
 
 const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -25,31 +24,33 @@ let verticalVelocity = 0;
 const gravity = -0.01;
 const jumpStrength = 0.2;
 let isGrounded = true;
-
-// Aiming
 let isAiming = false;
 
-// Raycasting
 const raycaster = new THREE.Raycaster();
 let enemies = [];
 
-// Disable right-click menu
 document.addEventListener("contextmenu", e => e.preventDefault());
 
-// Load textures
-const loader = new THREE.TextureLoader();
-const grassTexture = loader.load('https://threejs.org/examples/textures/grasslight-big.jpg');
-grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
-grassTexture.repeat.set(50, 50);
+// Procedural terrain
+const terrainGeo = new THREE.PlaneGeometry(100, 100, 64, 64);
+for (let i = 0; i < terrainGeo.vertices?.length || terrainGeo.attributes.position.count; i++) {
+  const y = Math.random() * 0.5;
+  if (terrainGeo.vertices) terrainGeo.vertices[i].z = y;
+  else terrainGeo.attributes.position.setY(i, y);
+}
+terrainGeo.computeVertexNormals();
 
-// Floor
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshLambertMaterial({ map: grassTexture })
-);
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
+const terrainMat = new THREE.MeshLambertMaterial({ color: 0x228B22 }); // forest green
+const terrain = new THREE.Mesh(terrainGeo, terrainMat);
+terrain.rotation.x = -Math.PI / 2;
+terrain.receiveShadow = true;
+scene.add(terrain);
+
+// Sky dome
+const skyGeo = new THREE.SphereGeometry(500, 32, 32);
+const skyMat = new THREE.MeshBasicMaterial({ color: 0x87ceeb, side: THREE.BackSide });
+const sky = new THREE.Mesh(skyGeo, skyMat);
+scene.add(sky);
 
 // Lighting
 const sun = new THREE.DirectionalLight(0xffffff, 1);
@@ -165,7 +166,6 @@ function animate() {
 
   velocity.copy(direction).applyEuler(yaw.rotation).multiplyScalar(0.1);
 
-  // Gravity and jumping
   verticalVelocity += gravity;
   yaw.position.y += verticalVelocity;
   if (yaw.position.y <= 0) {
