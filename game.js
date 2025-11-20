@@ -1,8 +1,17 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
 const keys = {};
 window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
@@ -55,29 +64,21 @@ function updatePlayer() {
 }
 
 function drawBackground(cameraX, cameraY) {
-  ctx.save();
-  ctx.translate(-cameraX, -cameraY);
-
   // Faded outer area
   ctx.fillStyle = "#a8d5a2";
   ctx.globalAlpha = 0.2;
-  ctx.fillRect(cameraX, cameraY, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.globalAlpha = 1;
 
-  // Garden-style radial gradient (fixed to map center)
-  const gradient = ctx.createRadialGradient(map.x, map.y, 0, map.x, map.y, map.radius);
+  // Garden-style gradient fixed to map center
+  const gradient = ctx.createRadialGradient(map.x - cameraX, map.y - cameraY, 0, map.x - cameraX, map.y - cameraY, map.radius);
   gradient.addColorStop(0, "#c8facc");
   gradient.addColorStop(1, "#7bbf7b");
 
   ctx.beginPath();
-  ctx.arc(map.x, map.y, map.radius, 0, Math.PI * 2);
+  ctx.arc(map.x - cameraX, map.y - cameraY, map.radius, 0, Math.PI * 2);
   ctx.fillStyle = gradient;
   ctx.fill();
-
-  drawGrass(cameraX, cameraY);
-  drawFlowerPatches(cameraX, cameraY);
-
-  ctx.restore();
 }
 
 function generateGrass(count, areaWidth, areaHeight, offsetX, offsetY) {
@@ -173,10 +174,12 @@ function drawPlayer(cameraX, cameraY) {
 function gameLoop() {
   updatePlayer();
 
-  const cameraX = player.x - canvas.width / 2;
-  const cameraY = player.y - canvas.height / 2;
+  const cameraX = player.x - canvas.width / (window.devicePixelRatio || 1) / 2;
+  const cameraY = player.y - canvas.height / (window.devicePixelRatio || 1) / 2;
 
   drawBackground(cameraX, cameraY);
+  drawGrass(cameraX, cameraY);
+  drawFlowerPatches(cameraX, cameraY);
   drawPlayer(cameraX, cameraY);
 
   requestAnimationFrame(gameLoop);
