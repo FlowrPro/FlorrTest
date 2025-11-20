@@ -64,7 +64,7 @@ function drawBackground(cameraX, cameraY) {
   ctx.fillRect(cameraX, cameraY, canvas.width, canvas.height);
   ctx.globalAlpha = 1;
 
-  // Garden-style radial gradient
+  // Garden-style radial gradient (fixed to map center)
   const gradient = ctx.createRadialGradient(map.x, map.y, 0, map.x, map.y, map.radius);
   gradient.addColorStop(0, "#c8facc");
   gradient.addColorStop(1, "#7bbf7b");
@@ -73,8 +73,6 @@ function drawBackground(cameraX, cameraY) {
   ctx.arc(map.x, map.y, map.radius, 0, Math.PI * 2);
   ctx.fillStyle = gradient;
   ctx.fill();
-
-  ctx.clip();
 
   drawGrass(cameraX, cameraY);
   drawFlowerPatches(cameraX, cameraY);
