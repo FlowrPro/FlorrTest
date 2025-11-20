@@ -341,6 +341,7 @@ function assignItemToInventory(item) {
   const slots = inventoryGrid.children;
   for (let i = 0; i < slots.length; i++) {
     const slot = slots[i];
+    console.log("Item added to inventory:", item); // test to verify DOM
     if (!slot.dataset.filled || slot.dataset.filled === "false") {
       slot.style.backgroundImage = `url(${item.icon})`;
       slot.style.backgroundSize = "cover";
