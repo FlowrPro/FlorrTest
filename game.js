@@ -139,13 +139,17 @@ function drawFlower(x, y) {
 
   ctx.save();
   ctx.translate(x, y);
+
   for (let i = 0; i < petalCount; i++) {
-    ctx.rotate((Math.PI * 2) / petalCount);
+    ctx.save();
+    ctx.rotate((Math.PI * 2 * i) / petalCount);
     ctx.beginPath();
     ctx.ellipse(0, radius / 2, radius / 2, radius, 0, 0, Math.PI * 2);
     ctx.fillStyle = petalColor;
     ctx.fill();
+    ctx.restore();
   }
+
   ctx.beginPath();
   ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
   ctx.fillStyle = "#fff";
