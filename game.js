@@ -179,6 +179,8 @@ function drawFlower(x, y) {
   ctx.restore();
 }
 
+
+
 function drawPlayer(cameraX, cameraY) {
   const px = player.x - cameraX;
   const py = player.y - cameraY;
@@ -224,11 +226,7 @@ function drawPlayer(cameraX, cameraY) {
   ctx.fillStyle = "#fff";
   ctx.fill();
 
-  ctx.beginPath();
-  ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI
-          // [Everything up to drawPlayer() remains unchanged...]
-
-  // Smile
+  // ✅ Fixed smile arc line
   ctx.beginPath();
   ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI, 0.8 * Math.PI);
   ctx.strokeStyle = "#000";
@@ -237,6 +235,7 @@ function drawPlayer(cameraX, cameraY) {
 
   ctx.restore();
 }
+
 
 function drawWorldItems(cameraX, cameraY) {
   for (const item of worldItems) {
