@@ -241,7 +241,14 @@ function drawPlayer(cameraX, cameraY) {
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   updatePlayer();
-
+  for (let i = worldItems.length - 1; i >= 0; i--) {
+  const item = worldItems[i];
+  const dist = Math.hypot(player.x - item.x, player.y - item.y);
+  if (dist < player.radius + item.radius) {
+    assignItemToHotbar({ type: item.type, icon: item.icon });
+    worldItems.splice(i, 1); // remove from world
+  }
+}
   const dpr = window.devicePixelRatio || 1;
   const cameraX = Math.floor(player.x - canvas.width / dpr / 2);
   const cameraY = Math.floor(player.y - canvas.height / dpr / 2);
@@ -250,7 +257,7 @@ function gameLoop() {
   drawGrass(cameraX, cameraY);
   drawFlowerPatches(cameraX, cameraY);
   drawPlayer(cameraX, cameraY);
-
+  drawWorldItems(cameraX, cameraY);
   requestAnimationFrame(gameLoop);
 }
 
@@ -309,5 +316,20 @@ function assignItemToHotbar(item) {
   if (index !== -1) {
     hotbarSlots[index] = item;
     updateHotbarUI();
+  }
+}
+function drawWorldItems(cameraX, cameraY) {
+  for (const item of worldItems) {
+    const px = item.x - cameraX;
+    const py = item.y - cameraY;
+
+    ctx.beginPath();
+    ctx.arc(px, py, item.radius, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+
+    const img = new Image();
+    img.src = item.icon;
+    ctx.drawImage(img, px - item.radius, py - item.radius, item.radius * 2, item.radius * 2);
   }
 }
