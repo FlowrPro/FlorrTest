@@ -2,7 +2,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // Replace with your actual Render backend URL
-const socket = io("https://your-render-app.onrender.com");
+const socket = io("https://florrtest-backend.onrender.com");
 
 let playerId = null;
 let inventory = [];
