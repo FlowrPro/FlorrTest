@@ -162,17 +162,52 @@ function drawFlower(x, y) {
 }
 
 function drawPlayer(cameraX, cameraY) {
+  const px = player.x - cameraX;
+  const py = player.y - cameraY;
+  const r = player.radius;
+
   ctx.save();
-  ctx.translate(player.x - cameraX, player.y - cameraY);
+  ctx.translate(px, py);
   ctx.rotate(player.angle);
-  if (player.sprite) {
-    ctx.drawImage(player.sprite, -player.radius, -player.radius, player.radius * 2, player.radius * 2);
-  } else {
-    ctx.beginPath();
-    ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "#ff0";
-    ctx.fill();
-  }
+
+  // Outer yellow ring
+  ctx.beginPath();
+  ctx.arc(0, 0, r + 4, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffcc00";
+  ctx.fill();
+
+  // Inner orange face
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fillStyle = "#ff9900";
+  ctx.fill();
+
+  // Eyes
+  const eyeOffsetX = r * 0.4;
+  const eyeOffsetY = -r * 0.3;
+  const eyeRadius = r * 0.2;
+
+  ctx.beginPath();
+  ctx.arc(-eyeOffsetX, eyeOffsetY, eyeRadius, 0, Math.PI * 2);
+  ctx.arc(eyeOffsetX, eyeOffsetY, eyeRadius, 0, Math.PI * 2);
+  ctx.fillStyle = "#000";
+  ctx.fill();
+
+  // Eye highlights
+  const highlightRadius = eyeRadius * 0.4;
+  ctx.beginPath();
+  ctx.arc(-eyeOffsetX - highlightRadius / 2, eyeOffsetY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
+  ctx.arc(eyeOffsetX - highlightRadius / 2, eyeOffsetY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+
+  // Smile
+  ctx.beginPath();
+  ctx.arc(0, r * 0.2, r * 0.5, 0, Math.PI);
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
   ctx.restore();
 }
 
