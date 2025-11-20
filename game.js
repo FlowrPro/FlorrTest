@@ -16,7 +16,15 @@ resizeCanvas();
 const keys = {};
 window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
 window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+window.addEventListener("keydown", e => {
+  keys[e.key.toLowerCase()] = true;
 
+  const num = parseInt(e.key);
+  if (!isNaN(num) && num >= 1 && num <= 10) {
+    selectedSlotIndex = num === 10 ? 9 : num - 1;
+    updateHotbarUI();
+  }
+});
 const map = {
   x: 0,
   y: 0,
@@ -288,3 +296,8 @@ function assignItemToHotbar(item) {
     updateHotbarUI();
   }
 }
+// Simulate assigning a petal to slot 1
+assignItemToHotbar({
+  type: "redPetal",
+  icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
+});
