@@ -1,39 +1,6 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const worldItems = [
-  {
-    type: "redPetal",
-    x: map.x + 60,
-    y: map.y + 40,
-    radius: 12,
-    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
-  }
-];
-canvas.addEventListener("contextmenu", e => e.preventDefault()); // Makes right clicking NOT show up context menu
-function resizeCanvas() {
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = window.innerWidth * dpr;
-  canvas.height = window.innerHeight * dpr;
-  canvas.style.width = window.innerWidth + "px";
-  canvas.style.height = window.innerHeight + "px";
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.scale(dpr, dpr);
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
 
-const keys = {};
-window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
-window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
-window.addEventListener("keydown", e => {
-  keys[e.key.toLowerCase()] = true;
-
-  const num = parseInt(e.key);
-  if (!isNaN(num) && num >= 1 && num <= 10) {
-    selectedSlotIndex = num === 10 ? 9 : num - 1;
-    updateHotbarUI();
-  }
-});
 const map = {
   x: 0,
   y: 0,
@@ -48,6 +15,42 @@ const player = {
   angle: 0,
   sprite: null
 };
+
+const worldItems = [
+  {
+    type: "redPetal",
+    x: map.x + 60,
+    y: map.y + 40,
+    radius: 12,
+    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
+  }
+];
+
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+const keys = {};
+window.addEventListener("keydown", e => {
+  keys[e.key.toLowerCase()] = true;
+
+  const num = parseInt(e.key);
+  if (!isNaN(num) && num >= 1 && num <= 10) {
+    selectedSlotIndex = num === 10 ? 9 : num - 1;
+    updateHotbarUI();
+  }
+});
+window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
 const grassBlades = [];
 const flowerPatches = [];
@@ -186,19 +189,16 @@ function drawPlayer(cameraX, cameraY) {
   ctx.save();
   ctx.translate(px, py);
 
-  // Outer yellow ring
   ctx.beginPath();
   ctx.arc(0, 0, r + 4, 0, Math.PI * 2);
   ctx.fillStyle = "#ffcc00";
   ctx.fill();
 
-  // Inner orange face
   ctx.beginPath();
   ctx.arc(0, 0, r, 0, Math.PI * 2);
   ctx.fillStyle = "#ff9900";
   ctx.fill();
 
-  // Eye direction based on movement
   let dx = 0, dy = 0;
   if (keys["w"]) dy -= 1;
   if (keys["s"]) dy += 1;
@@ -213,20 +213,22 @@ function drawPlayer(cameraX, cameraY) {
   const eyeDirX = dx * eyeLookOffset;
   const eyeDirY = dy * eyeLookOffset;
 
-  // Eyes
   ctx.beginPath();
   ctx.arc(-eyeOffsetX + eyeDirX, eyeOffsetY + eyeDirY, eyeRadius, 0, Math.PI * 2);
   ctx.arc(eyeOffsetX + eyeDirX, eyeOffsetY + eyeDirY, eyeRadius, 0, Math.PI * 2);
   ctx.fillStyle = "#000";
   ctx.fill();
 
-  // Eye highlights
   const highlightRadius = eyeRadius * 0.4;
   ctx.beginPath();
   ctx.arc(-eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
   ctx.arc(eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
   ctx.fillStyle = "#fff";
   ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI
+          // [Everything up to drawPlayer() remains unchanged...]
 
   // Smile
   ctx.beginPath();
@@ -238,17 +240,39 @@ function drawPlayer(cameraX, cameraY) {
   ctx.restore();
 }
 
+function drawWorldItems(cameraX, cameraY) {
+  for (const item of worldItems) {
+    const px = item.x - cameraX;
+    const py = item.y - cameraY;
+
+    ctx.beginPath();
+    ctx.arc(px, py, item.radius, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+
+    if (!item._img) {
+      item._img = new Image();
+      item._img.src = item.icon;
+    }
+    if (item._img.complete) {
+      ctx.drawImage(item._img, px - item.radius, py - item.radius, item.radius * 2, item.radius * 2);
+    }
+  }
+}
+
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   updatePlayer();
+
   for (let i = worldItems.length - 1; i >= 0; i--) {
-  const item = worldItems[i];
-  const dist = Math.hypot(player.x - item.x, player.y - item.y);
-  if (dist < player.radius + item.radius) {
-    assignItemToHotbar({ type: item.type, icon: item.icon });
-    worldItems.splice(i, 1); // remove from world
+    const item = worldItems[i];
+    const dist = Math.hypot(player.x - item.x, player.y - item.y);
+    if (dist < player.radius + item.radius) {
+      assignItemToHotbar({ type: item.type, icon: item.icon });
+      worldItems.splice(i, 1);
+    }
   }
-}
+
   const dpr = window.devicePixelRatio || 1;
   const cameraX = Math.floor(player.x - canvas.width / dpr / 2);
   const cameraY = Math.floor(player.y - canvas.height / dpr / 2);
@@ -258,6 +282,7 @@ function gameLoop() {
   drawFlowerPatches(cameraX, cameraY);
   drawPlayer(cameraX, cameraY);
   drawWorldItems(cameraX, cameraY);
+
   requestAnimationFrame(gameLoop);
 }
 
@@ -270,23 +295,25 @@ generateGrass(2000, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSi
 generateFlowerPatches(50, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSize / 2);
 
 gameLoop();
+
 // Simulate assigning a petal to slot 1
 assignItemToHotbar({
   type: "redPetal",
   icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
 });
 
-// Start of inventory system
+// Inventory system
 const inventoryButton = document.getElementById("inventory-button");
 const inventoryPanel = document.getElementById("inventory-panel");
 
 inventoryButton.addEventListener("click", () => {
   inventoryPanel.hidden = !inventoryPanel.hidden;
 });
+
 const inventoryGrid = document.getElementById("inventory-grid");
 
 // Simulate petals/items
-const petalCount = 40; // Change this number to test scrolling
+const petalCount = 40;
 for (let i = 0; i < petalCount; i++) {
   const slot = document.createElement("div");
   slot.style.width = "40px";
@@ -296,10 +323,10 @@ for (let i = 0; i < petalCount; i++) {
   slot.style.borderRadius = "4px";
   inventoryGrid.appendChild(slot);
 }
-const hotbarSlots = Array(10).fill(null); // 10 slots, initially empty
+
+const hotbarSlots = Array(10).fill(null);
 let selectedSlotIndex = 0;
 
-// Render hotbar items and selection
 function updateHotbarUI() {
   const hotbarElements = document.querySelectorAll(".hotbar-slot");
   hotbarElements.forEach((el, i) => {
@@ -310,26 +337,10 @@ function updateHotbarUI() {
   });
 }
 
-// Assign item to first empty slot
 function assignItemToHotbar(item) {
   const index = hotbarSlots.findIndex(slot => slot === null);
   if (index !== -1) {
     hotbarSlots[index] = item;
     updateHotbarUI();
-  }
-}
-function drawWorldItems(cameraX, cameraY) {
-  for (const item of worldItems) {
-    const px = item.x - cameraX;
-    const py = item.y - cameraY;
-
-    ctx.beginPath();
-    ctx.arc(px, py, item.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "#fff";
-    ctx.fill();
-
-    const img = new Image();
-    img.src = item.icon;
-    ctx.drawImage(img, px - item.radius, py - item.radius, item.radius * 2, item.radius * 2);
   }
 }
