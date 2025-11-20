@@ -337,6 +337,8 @@ function assignItemToInventory(item) {
     const slot = slots[i];
     if (!slot.dataset.filled || slot.dataset.filled === "false") {
       slot.style.backgroundImage = `url(${item.icon})`;
+      slot.style.backgroundSize = "cover";           // ✅ Add this
+      slot.style.backgroundPosition = "center";      // ✅ Add this
       slot.dataset.filled = "true";
       break;
     }
