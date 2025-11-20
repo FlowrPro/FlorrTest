@@ -55,25 +55,90 @@ function drawBackground(cameraX, cameraY) {
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
 
-  // Draw faded outer area
-  ctx.fillStyle = "#0f6";
+  // Faded outer area
+  ctx.fillStyle = "#a8d5a2"; // same green, faded
   ctx.globalAlpha = 0.2;
   ctx.fillRect(cameraX, cameraY, canvas.width, canvas.height);
   ctx.globalAlpha = 1;
 
-  // Draw realistic grass gradient inside circle
-  const gradient = ctx.createRadialGradient(map.x, map.y, map.radius * 0.2, map.x, map.y, map.radius);
-  gradient.addColorStop(0, "#3fa34d"); // lighter center
-  gradient.addColorStop(1, "#2e7d32"); // darker edge
+  // Garden-style radial gradient (light center, dark edge)
+  const gradient = ctx.createRadialGradient(map.x, map.y, 0, map.x, map.y, map.radius);
+  gradient.addColorStop(0, "#c8facc"); // light mint green
+  gradient.addColorStop(1, "#7bbf7b"); // deeper garden green
 
   ctx.beginPath();
   ctx.arc(map.x, map.y, map.radius, 0, Math.PI * 2);
   ctx.fillStyle = gradient;
   ctx.fill();
 
+  // Clip to circle for grass and flowers
+  ctx.clip();
+
+  drawGrass(map.x, map.y, map.radius);
+  drawFlowerPatches(map.x, map.y, map.radius);
+
   ctx.restore();
 }
+function drawGrass(cx, cy, radius) {
+  const density = 800;
+  for (let i = 0; i < density; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = Math.random() * radius;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
 
+    const length = 4 + Math.random() * 4;
+    const angleOffset = (Math.random() - 0.5) * 0.5;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(angle + angleOffset) * length, y + Math.sin(angle + angleOffset) * length);
+    ctx.strokeStyle = Math.random() < 0.5 ? "#4e944f" : "#3b7d3b";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+function drawFlowerPatches(cx, cy, radius) {
+  const patchCount = 15;
+  for (let i = 0; i < patchCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = Math.random() * (radius - 50);
+    const px = cx + Math.cos(angle) * r;
+    const py = cy + Math.sin(angle) * r;
+
+    drawFlowerPatch(px, py);
+  }
+}
+
+function drawFlowerPatch(x, y) {
+  const flowers = 5 + Math.floor(Math.random() * 5);
+  for (let i = 0; i < flowers; i++) {
+    const offsetX = (Math.random() - 0.5) * 30;
+    const offsetY = (Math.random() - 0.5) * 30;
+    drawFlower(x + offsetX, y + offsetY);
+  }
+}
+
+function drawFlower(x, y) {
+  const petalCount = 6;
+  const radius = 6;
+  const petalColor = ["#ff69b4", "#ffa07a", "#ffd700"][Math.floor(Math.random() * 3)];
+
+  ctx.save();
+  ctx.translate(x, y);
+  for (let i = 0; i < petalCount; i++) {
+    ctx.rotate((Math.PI * 2) / petalCount);
+    ctx.beginPath();
+    ctx.ellipse(0, radius / 2, radius / 2, radius, 0, 0, Math.PI * 2);
+    ctx.fillStyle = petalColor;
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.restore();
+}
 function drawPlayer(cameraX, cameraY) {
   ctx.save();
   ctx.translate(player.x - cameraX, player.y - cameraY);
