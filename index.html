@@ -2,128 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>FPS Prototype</title>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
-    #crosshair {
-      position: fixed;
-      top: 50%; left: 50%;
-      width: 10px; height: 10px;
-      margin-left: -5px; margin-top: -5px;
-      background: white; border-radius: 50%;
-      z-index: 10;
-    }
-    #hud {
-      position: fixed; top: 10px; left: 10px;
-      color: white; font-family: sans-serif;
-      z-index: 10;
-    }
-  </style>
+  <title>FPS Game</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div id="crosshair"></div>
-<div id="hud">Enemies: <span id="enemyCount">0</span></div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
-<script>
-let scene = new THREE.Scene();
-let camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
-let renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth, innerHeight);
-document.body.appendChild(renderer.domElement);
-
-let controls = { forward: false, backward: false, left: false, right: false };
-let velocity = new THREE.Vector3();
-let direction = new THREE.Vector3();
-let raycaster = new THREE.Raycaster();
-let enemies = [];
-
-let floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshBasicMaterial({color: 0x222222})
-);
-floor.rotation.x = -Math.PI / 2;
-scene.add(floor);
-
-let light = new THREE.AmbientLight(0xffffff);
-scene.add(light);
-
-camera.position.y = 1.6;
-
-function spawnEnemy() {
-  let enemy = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 2, 1),
-    new THREE.MeshBasicMaterial({color: 0xff0000})
-  );
-  enemy.position.set(Math.random()*40-20, 1, Math.random()*40-20);
-  scene.add(enemy);
-  enemies.push(enemy);
-  document.getElementById("enemyCount").textContent = enemies.length;
-}
-
-for (let i = 0; i < 10; i++) spawnEnemy();
-
-function shoot() {
-  raycaster.setFromCamera({x:0, y:0}, camera);
-  let hits = raycaster.intersectObjects(enemies);
-  if (hits.length > 0) {
-    let hit = hits[0].object;
-    scene.remove(hit);
-    enemies = enemies.filter(e => e !== hit);
-    document.getElementById("enemyCount").textContent = enemies.length;
-  }
-}
-
-document.addEventListener("click", () => {
-  if (document.pointerLockElement !== renderer.domElement) {
-    renderer.domElement.requestPointerLock();
-  } else {
-    shoot();
-  }
-});
-
-document.addEventListener("pointerlockchange", () => {
-  if (document.pointerLockElement === renderer.domElement) {
-    document.addEventListener("mousemove", onMouseMove, false);
-  } else {
-    document.removeEventListener("mousemove", onMouseMove, false);
-  }
-});
-
-let pitch = 0, yaw = 0;
-function onMouseMove(e) {
-  yaw -= e.movementX * 0.002;
-  pitch -= e.movementY * 0.002;
-  pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitch));
-  camera.rotation.set(pitch, yaw, 0);
-}
-
-document.addEventListener("keydown", e => {
-  if (e.code === "KeyW") controls.forward = true;
-  if (e.code === "KeyS") controls.backward = true;
-  if (e.code === "KeyA") controls.left = true;
-  if (e.code === "KeyD") controls.right = true;
-});
-document.addEventListener("keyup", e => {
-  if (e.code === "KeyW") controls.forward = false;
-  if (e.code === "KeyS") controls.backward = false;
-  if (e.code === "KeyA") controls.left = false;
-  if (e.code === "KeyD") controls.right = false;
-});
-
-function animate() {
-  requestAnimationFrame(animate);
-  direction.set(0, 0, 0);
-  if (controls.forward) direction.z -= 1;
-  if (controls.backward) direction.z += 1;
-  if (controls.left) direction.x -= 1;
-  if (controls.right) direction.x += 1;
-  direction.normalize();
-  velocity.copy(direction).applyEuler(camera.rotation).multiplyScalar(0.1);
-  camera.position.add(velocity);
-  renderer.render(scene, camera);
-}
-animate();
-</script>
+  <div id="crosshair"></div>
+  <div id="hud">Enemies: <span id="enemyCount">0</span></div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
