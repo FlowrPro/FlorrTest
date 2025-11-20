@@ -246,3 +246,10 @@ generateGrass(2000, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSi
 generateFlowerPatches(50, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSize / 2);
 
 gameLoop();
+
+const inventoryButton = document.getElementById("inventory-button");
+const inventoryPanel = document.getElementById("inventory-panel");
+
+inventoryButton.addEventListener("click", () => {
+  inventoryPanel.hidden = !inventoryPanel.hidden;
+});
