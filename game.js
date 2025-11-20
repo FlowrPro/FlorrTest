@@ -246,10 +246,23 @@ generateGrass(2000, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSi
 generateFlowerPatches(50, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSize / 2);
 
 gameLoop();
-
+// Start of inventory system
 const inventoryButton = document.getElementById("inventory-button");
 const inventoryPanel = document.getElementById("inventory-panel");
 
 inventoryButton.addEventListener("click", () => {
   inventoryPanel.hidden = !inventoryPanel.hidden;
 });
+const inventoryGrid = document.getElementById("inventory-grid");
+
+// Simulate petals/items
+const petalCount = 40; // Change this number to test scrolling
+for (let i = 0; i < petalCount; i++) {
+  const slot = document.createElement("div");
+  slot.style.width = "40px";
+  slot.style.height = "40px";
+  slot.style.backgroundColor = "#555";
+  slot.style.border = "1px solid #999";
+  slot.style.borderRadius = "4px";
+  inventoryGrid.appendChild(slot);
+}
