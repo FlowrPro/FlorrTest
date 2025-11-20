@@ -85,9 +85,7 @@ function updatePlayer() {
 
 function drawBackground(cameraX, cameraY) {
   ctx.fillStyle = "#a8d5a2";
-  ctx.globalAlpha = 0.2;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.globalAlpha = 1;
+  ctx.fillRect(0, 0, canvas.width, canvas.height); // Removed globalAlpha
 
   const gradient = ctx.createRadialGradient(
     map.x - cameraX,
