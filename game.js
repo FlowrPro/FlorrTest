@@ -266,3 +266,25 @@ for (let i = 0; i < petalCount; i++) {
   slot.style.borderRadius = "4px";
   inventoryGrid.appendChild(slot);
 }
+const hotbarSlots = Array(10).fill(null); // 10 slots, initially empty
+let selectedSlotIndex = 0;
+
+// Render hotbar items and selection
+function updateHotbarUI() {
+  const hotbarElements = document.querySelectorAll(".hotbar-slot");
+  hotbarElements.forEach((el, i) => {
+    el.style.outline = i === selectedSlotIndex ? "2px solid #fff" : "none";
+    el.style.backgroundImage = hotbarSlots[i]?.icon ? `url(${hotbarSlots[i].icon})` : "none";
+    el.style.backgroundSize = "cover";
+    el.style.backgroundPosition = "center";
+  });
+}
+
+// Assign item to first empty slot
+function assignItemToHotbar(item) {
+  const index = hotbarSlots.findIndex(slot => slot === null);
+  if (index !== -1) {
+    hotbarSlots[index] = item;
+    updateHotbarUI();
+  }
+}
