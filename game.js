@@ -220,8 +220,8 @@ function drawPlayer(cameraX, cameraY) {
   ctx.fillStyle = "#fff";
   ctx.fill();
 
-  ctx.beginPath();
-    ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI, 0.8 * Math.PI);
+    ctx.beginPath();
+  ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI, 0.8 * Math.PI);
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 1.5;
   ctx.stroke();
@@ -288,8 +288,8 @@ generateFlowerPatches(50, worldSize, worldSize, map.x - worldSize / 2, map.y - w
 
 gameLoop();
 
-// Inventory + Hotbar setup (after DOM is ready)
-window.onload = () => {
+// DOM-READY INVENTORY SETUP
+window.addEventListener("DOMContentLoaded", () => {
   const inventoryButton = document.getElementById("inventory-button");
   const inventoryPanel = document.getElementById("inventory-panel");
   const inventoryGrid = document.getElementById("inventory-grid");
@@ -299,8 +299,7 @@ window.onload = () => {
     inventoryPanel.hidden = !inventoryPanel.hidden;
   });
 
-  const petalCount = 40;
-  for (let i = 0; i < petalCount; i++) {
+  for (let i = 0; i < 40; i++) {
     const slot = document.createElement("div");
     slot.className = "inventory-slot";
     slot.dataset.filled = "false";
@@ -341,7 +340,9 @@ window.onload = () => {
   window.assignItemToHotbar = assignItemToHotbar;
 
   function assignItemToInventory(item) {
-    const slots = inventoryGrid.children;
+    const slots = window.inventoryGrid?.children;
+    if (!slots) return;
+
     for (let i = 0; i < slots.length; i++) {
       const slot = slots[i];
       if (!slot.dataset.filled || slot.dataset.filled === "false") {
@@ -355,4 +356,4 @@ window.onload = () => {
   }
 
   window.assignItemToInventory = assignItemToInventory;
-};
+});
