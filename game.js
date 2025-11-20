@@ -1,5 +1,14 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const worldItems = [
+  {
+    type: "redPetal",
+    x: map.x + 60,
+    y: map.y + 40,
+    radius: 12,
+    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
+  }
+];
 canvas.addEventListener("contextmenu", e => e.preventDefault()); // Makes right clicking NOT show up context menu
 function resizeCanvas() {
   const dpr = window.devicePixelRatio || 1;
