@@ -52,15 +52,25 @@ function updatePlayer() {
 }
 
 function drawBackground(cameraX, cameraY) {
-  ctx.fillStyle = "#0a3"; // Dark green outside
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
+
+  // Draw faded outer area
+  ctx.fillStyle = "#0f6";
+  ctx.globalAlpha = 0.2;
+  ctx.fillRect(cameraX, cameraY, canvas.width, canvas.height);
+  ctx.globalAlpha = 1;
+
+  // Draw realistic grass gradient inside circle
+  const gradient = ctx.createRadialGradient(map.x, map.y, map.radius * 0.2, map.x, map.y, map.radius);
+  gradient.addColorStop(0, "#3fa34d"); // lighter center
+  gradient.addColorStop(1, "#2e7d32"); // darker edge
+
   ctx.beginPath();
   ctx.arc(map.x, map.y, map.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "#0f6"; // Bright green inside
+  ctx.fillStyle = gradient;
   ctx.fill();
+
   ctx.restore();
 }
 
