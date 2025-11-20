@@ -23,6 +23,9 @@ const player = {
   sprite: null
 };
 
+const grassBlades = [];
+const flowerPatches = [];
+
 function loadSprite() {
   const img = new Image();
   img.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png";
@@ -56,57 +59,67 @@ function drawBackground(cameraX, cameraY) {
   ctx.translate(-cameraX, -cameraY);
 
   // Faded outer area
-  ctx.fillStyle = "#a8d5a2"; // same green, faded
+  ctx.fillStyle = "#a8d5a2";
   ctx.globalAlpha = 0.2;
   ctx.fillRect(cameraX, cameraY, canvas.width, canvas.height);
   ctx.globalAlpha = 1;
 
-  // Garden-style radial gradient (light center, dark edge)
+  // Garden-style radial gradient
   const gradient = ctx.createRadialGradient(map.x, map.y, 0, map.x, map.y, map.radius);
-  gradient.addColorStop(0, "#c8facc"); // light mint green
-  gradient.addColorStop(1, "#7bbf7b"); // deeper garden green
+  gradient.addColorStop(0, "#c8facc");
+  gradient.addColorStop(1, "#7bbf7b");
 
   ctx.beginPath();
   ctx.arc(map.x, map.y, map.radius, 0, Math.PI * 2);
   ctx.fillStyle = gradient;
   ctx.fill();
 
-  // Clip to circle for grass and flowers
   ctx.clip();
 
-  drawGrass(map.x, map.y, map.radius);
-  drawFlowerPatches(map.x, map.y, map.radius);
+  drawGrass(cameraX, cameraY);
+  drawFlowerPatches(cameraX, cameraY);
 
   ctx.restore();
 }
-function drawGrass(cx, cy, radius) {
-  const density = 800;
-  for (let i = 0; i < density; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const r = Math.random() * radius;
-    const x = cx + Math.cos(angle) * r;
-    const y = cy + Math.sin(angle) * r;
 
+function generateGrass(count, areaWidth, areaHeight, offsetX, offsetY) {
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * areaWidth + offsetX;
+    const y = Math.random() * areaHeight + offsetY;
     const length = 4 + Math.random() * 4;
+    const angle = Math.random() * Math.PI * 2;
     const angleOffset = (Math.random() - 0.5) * 0.5;
+    const color = Math.random() < 0.5 ? "#4e944f" : "#3b7d3b";
 
+    grassBlades.push({ x, y, length, angle, angleOffset, color });
+  }
+}
+
+function drawGrass(cameraX, cameraY) {
+  for (const blade of grassBlades) {
     ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + Math.cos(angle + angleOffset) * length, y + Math.sin(angle + angleOffset) * length);
-    ctx.strokeStyle = Math.random() < 0.5 ? "#4e944f" : "#3b7d3b";
+    ctx.moveTo(blade.x - cameraX, blade.y - cameraY);
+    ctx.lineTo(
+      blade.x - cameraX + Math.cos(blade.angle + blade.angleOffset) * blade.length,
+      blade.y - cameraY + Math.sin(blade.angle + blade.angleOffset) * blade.length
+    );
+    ctx.strokeStyle = blade.color;
     ctx.lineWidth = 1;
     ctx.stroke();
   }
 }
-function drawFlowerPatches(cx, cy, radius) {
-  const patchCount = 15;
-  for (let i = 0; i < patchCount; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const r = Math.random() * (radius - 50);
-    const px = cx + Math.cos(angle) * r;
-    const py = cy + Math.sin(angle) * r;
 
-    drawFlowerPatch(px, py);
+function generateFlowerPatches(count, areaWidth, areaHeight, offsetX, offsetY) {
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * areaWidth + offsetX;
+    const y = Math.random() * areaHeight + offsetY;
+    flowerPatches.push({ x, y });
+  }
+}
+
+function drawFlowerPatches(cameraX, cameraY) {
+  for (const patch of flowerPatches) {
+    drawFlowerPatch(patch.x - cameraX, patch.y - cameraY);
   }
 }
 
@@ -139,6 +152,7 @@ function drawFlower(x, y) {
   ctx.fill();
   ctx.restore();
 }
+
 function drawPlayer(cameraX, cameraY) {
   ctx.save();
   ctx.translate(player.x - cameraX, player.y - cameraY);
@@ -166,6 +180,12 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
+// Initialize world
 player.x = map.x;
 player.y = map.y;
+
+const worldSize = 3000;
+generateGrass(2000, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSize / 2);
+generateFlowerPatches(50, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSize / 2);
+
 gameLoop();
