@@ -216,12 +216,12 @@ function drawPlayer(cameraX, cameraY) {
   const highlightRadius = eyeRadius * 0.4;
   ctx.beginPath();
   ctx.arc(-eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
-    ctx.arc(eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
+  ctx.arc(eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
   ctx.fillStyle = "#fff";
   ctx.fill();
 
   ctx.beginPath();
-  ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI, 0.8 * Math.PI);
+    ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI, 0.8 * Math.PI);
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 1.5;
   ctx.stroke();
@@ -288,63 +288,71 @@ generateFlowerPatches(50, worldSize, worldSize, map.x - worldSize / 2, map.y - w
 
 gameLoop();
 
-// Inventory system
-const inventoryButton = document.getElementById("inventory-button");
-const inventoryPanel = document.getElementById("inventory-panel");
+// Inventory + Hotbar setup (after DOM is ready)
+window.onload = () => {
+  const inventoryButton = document.getElementById("inventory-button");
+  const inventoryPanel = document.getElementById("inventory-panel");
+  const inventoryGrid = document.getElementById("inventory-grid");
+  window.inventoryGrid = inventoryGrid;
 
-inventoryButton.addEventListener("click", () => {
-  inventoryPanel.hidden = !inventoryPanel.hidden;
-});
-
-const inventoryGrid = document.getElementById("inventory-grid");
-
-// Create inventory slots
-const petalCount = 40;
-for (let i = 0; i < petalCount; i++) {
-  const slot = document.createElement("div");
-  slot.className = "inventory-slot";
-  slot.dataset.filled = "false";
-  slot.style.width = "40px";
-  slot.style.height = "40px";
-  slot.style.backgroundColor = "#555";
-  slot.style.border = "1px solid #999";
-  slot.style.borderRadius = "4px";
-  slot.style.backgroundSize = "cover";
-  slot.style.backgroundPosition = "center";
-  inventoryGrid.appendChild(slot);
-}
-
-const hotbarSlots = Array(10).fill(null);
-let selectedSlotIndex = 0;
-
-function updateHotbarUI() {
-  const hotbarElements = document.querySelectorAll(".hotbar-slot");
-  hotbarElements.forEach((el, i) => {
-    el.style.outline = i === selectedSlotIndex ? "2px solid #fff" : "none";
-    el.style.backgroundImage = hotbarSlots[i]?.icon ? `url(${hotbarSlots[i].icon})` : "none";
-    el.style.backgroundSize = "cover";
-    el.style.backgroundPosition = "center";
+  inventoryButton.addEventListener("click", () => {
+    inventoryPanel.hidden = !inventoryPanel.hidden;
   });
-}
 
-function assignItemToHotbar(item) {
-  const index = hotbarSlots.findIndex(slot => slot === null);
-  if (index !== -1) {
-    hotbarSlots[index] = item;
-    updateHotbarUI();
+  const petalCount = 40;
+  for (let i = 0; i < petalCount; i++) {
+    const slot = document.createElement("div");
+    slot.className = "inventory-slot";
+    slot.dataset.filled = "false";
+    slot.style.width = "40px";
+    slot.style.height = "40px";
+    slot.style.backgroundColor = "#555";
+    slot.style.border = "1px solid #999";
+    slot.style.borderRadius = "4px";
+    slot.style.backgroundSize = "cover";
+    slot.style.backgroundPosition = "center";
+    inventoryGrid.appendChild(slot);
   }
-}
 
-function assignItemToInventory(item) {
-  const slots = inventoryGrid.children;
-  for (let i = 0; i < slots.length; i++) {
-    const slot = slots[i];
-    if (!slot.dataset.filled || slot.dataset.filled === "false") {
-      slot.style.backgroundImage = `url(${item.icon})`;
-      slot.style.backgroundSize = "cover";
-      slot.style.backgroundPosition = "center";
-      slot.dataset.filled = "true";
-      break;
+  const hotbarSlots = Array(10).fill(null);
+  window.hotbarSlots = hotbarSlots;
+  window.selectedSlotIndex = 0;
+
+  function updateHotbarUI() {
+    const hotbarElements = document.querySelectorAll(".hotbar-slot");
+    hotbarElements.forEach((el, i) => {
+      el.style.outline = i === selectedSlotIndex ? "2px solid #fff" : "none";
+      el.style.backgroundImage = hotbarSlots[i]?.icon ? `url(${hotbarSlots[i].icon})` : "none";
+      el.style.backgroundSize = "cover";
+      el.style.backgroundPosition = "center";
+    });
+  }
+
+  window.updateHotbarUI = updateHotbarUI;
+
+  function assignItemToHotbar(item) {
+    const index = hotbarSlots.findIndex(slot => slot === null);
+    if (index !== -1) {
+      hotbarSlots[index] = item;
+      updateHotbarUI();
     }
   }
-}
+
+  window.assignItemToHotbar = assignItemToHotbar;
+
+  function assignItemToInventory(item) {
+    const slots = inventoryGrid.children;
+    for (let i = 0; i < slots.length; i++) {
+      const slot = slots[i];
+      if (!slot.dataset.filled || slot.dataset.filled === "false") {
+        slot.style.backgroundImage = `url(${item.icon})`;
+        slot.style.backgroundSize = "cover";
+        slot.style.backgroundPosition = "center";
+        slot.dataset.filled = "true";
+        break;
+      }
+    }
+  }
+
+  window.assignItemToInventory = assignItemToInventory;
+};
