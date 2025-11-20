@@ -264,9 +264,9 @@ function gameLoop() {
     const item = worldItems[i];
     const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist < player.radius + item.radius) {
-      assignItemToHotbar({ type: item.type, icon: item.icon });
-      worldItems.splice(i, 1);
-    }
+  assignItemToInventory({ type: item.type, icon: item.icon });
+  worldItems.splice(i, 1);
+}
   }
 
   const dpr = window.devicePixelRatio || 1;
@@ -334,9 +334,16 @@ function assignItemToHotbar(item) {
     updateHotbarUI();
   }
 }
-
-// ✅ Moved this below hotbarSlots declaration to fix ReferenceError
-assignItemToHotbar({
-  type: "redPetal",
-  icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
-});
+function assignItemToInventory(item) {
+  const slots = inventoryGrid.children;
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i];
+    if (!slot.dataset.filled) {
+      slot.style.backgroundImage = `url(${item.icon})`;
+      slot.style.backgroundSize = "cover";
+      slot.style.backgroundPosition = "center";
+      slot.dataset.filled = "true";
+      break;
+    }
+  }
+}
