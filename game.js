@@ -1,9 +1,14 @@
+// Scene setup
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb); // light blue sky
+
 const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
-document.addEventListener("contextmenu", e => e.preventDefault());
+
 // FPS camera rig
 const yaw = new THREE.Object3D();
 const pitch = new THREE.Object3D();
@@ -28,16 +33,32 @@ let isAiming = false;
 const raycaster = new THREE.Raycaster();
 let enemies = [];
 
+// Disable right-click menu
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+// Load textures
+const loader = new THREE.TextureLoader();
+const grassTexture = loader.load('https://threejs.org/examples/textures/grasslight-big.jpg');
+grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
+grassTexture.repeat.set(50, 50);
+
 // Floor
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshBasicMaterial({ color: 0x222222 })
+  new THREE.MeshLambertMaterial({ map: grassTexture })
 );
 floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
 scene.add(floor);
 
-// Light
-scene.add(new THREE.AmbientLight(0xffffff));
+// Lighting
+const sun = new THREE.DirectionalLight(0xffffff, 1);
+sun.position.set(50, 100, 50);
+sun.castShadow = true;
+scene.add(sun);
+
+const ambient = new THREE.AmbientLight(0xaaaaaa);
+scene.add(ambient);
 
 // Gun model
 const gun = new THREE.Mesh(
@@ -54,6 +75,7 @@ function spawnEnemy() {
     new THREE.MeshBasicMaterial({ color: 0xff0000 })
   );
   enemy.position.set(Math.random() * 40 - 20, 1, Math.random() * 40 - 20);
+  enemy.castShadow = true;
   scene.add(enemy);
   enemies.push(enemy);
   document.getElementById("enemyCount").textContent = enemies.length;
