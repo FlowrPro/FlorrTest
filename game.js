@@ -1,6 +1,12 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// Replace with your actual Render backend URL
+const socket = io("https://your-render-app.onrender.com");
+
+let playerId = null;
+let inventory = [];
+
 const map = { x: 0, y: 0, radius: 800 };
 
 const player = {
@@ -48,9 +54,6 @@ window.addEventListener("keydown", e => {
 });
 window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
-const grassBlades = [];
-const flowerPatches = [];
-
 function loadSprite() {
   const img = new Image();
   img.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png";
@@ -77,102 +80,6 @@ function updatePlayer() {
   if (dx !== 0 || dy !== 0) {
     player.angle = Math.atan2(dy, dx);
   }
-}
-
-function drawBackground(cameraX, cameraY) {
-  ctx.fillStyle = "#a8d5a2";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  const gradient = ctx.createRadialGradient(
-    map.x - cameraX,
-    map.y - cameraY,
-    0,
-    map.x - cameraX,
-    map.y - cameraY,
-    map.radius
-  );
-  gradient.addColorStop(0, "#c8facc");
-  gradient.addColorStop(1, "#7bbf7b");
-
-  ctx.beginPath();
-  ctx.arc(map.x - cameraX, map.y - cameraY, map.radius, 0, Math.PI * 2);
-  ctx.fillStyle = gradient;
-  ctx.fill();
-}
-
-function generateGrass(count, areaWidth, areaHeight, offsetX, offsetY) {
-  for (let i = 0; i < count; i++) {
-    const x = Math.random() * areaWidth + offsetX;
-    const y = Math.random() * areaHeight + offsetY;
-    const length = 4 + Math.random() * 4;
-    const angle = Math.random() * Math.PI * 2;
-    const angleOffset = (Math.random() - 0.5) * 0.5;
-    const color = Math.random() < 0.5 ? "#4e944f" : "#3b7d3b";
-
-    grassBlades.push({ x, y, length, angle, angleOffset, color });
-  }
-}
-
-function drawGrass(cameraX, cameraY) {
-  for (const blade of grassBlades) {
-    ctx.beginPath();
-    ctx.moveTo(blade.x - cameraX, blade.y - cameraY);
-    ctx.lineTo(
-      blade.x - cameraX + Math.cos(blade.angle + blade.angleOffset) * blade.length,
-      blade.y - cameraY + Math.sin(blade.angle + blade.angleOffset) * blade.length
-    );
-    ctx.strokeStyle = blade.color;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-}
-
-function generateFlowerPatches(count, areaWidth, areaHeight, offsetX, offsetY) {
-  for (let i = 0; i < count; i++) {
-    const x = Math.random() * areaWidth + offsetX;
-    const y = Math.random() * areaHeight + offsetY;
-    flowerPatches.push({ x, y });
-  }
-}
-
-function drawFlowerPatches(cameraX, cameraY) {
-  for (const patch of flowerPatches) {
-    drawFlowerPatch(patch.x - cameraX, patch.y - cameraY);
-  }
-}
-
-function drawFlowerPatch(x, y) {
-  const flowers = 5 + Math.floor(Math.random() * 5);
-  for (let i = 0; i < flowers; i++) {
-    const offsetX = (Math.random() - 0.5) * 30;
-    const offsetY = (Math.random() - 0.5) * 30;
-    drawFlower(x + offsetX, y + offsetY);
-  }
-}
-
-function drawFlower(x, y) {
-  const petalCount = 6;
-  const radius = 6;
-  const petalColor = ["#ff69b4", "#ffa07a", "#ffd700"][Math.floor(Math.random() * 3)];
-
-  ctx.save();
-  ctx.translate(x, y);
-
-  for (let i = 0; i < petalCount; i++) {
-    ctx.save();
-    ctx.rotate((Math.PI * 2 * i) / petalCount);
-    ctx.beginPath();
-    ctx.ellipse(0, radius / 2, radius / 2, radius, 0, 0, Math.PI * 2);
-    ctx.fillStyle = petalColor;
-    ctx.fill();
-    ctx.restore();
-  }
-
-  ctx.beginPath();
-  ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
-  ctx.fillStyle = "#fff";
-  ctx.fill();
-  ctx.restore();
 }
 
 function drawPlayer(cameraX, cameraY) {
@@ -220,7 +127,7 @@ function drawPlayer(cameraX, cameraY) {
   ctx.fillStyle = "#fff";
   ctx.fill();
 
-    ctx.beginPath();
+  ctx.beginPath();
   ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI, 0.8 * Math.PI);
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 1.5;
@@ -256,11 +163,13 @@ function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   updatePlayer();
 
+  socket.emit("move", { x: player.x, y: player.y });
+
   for (let i = worldItems.length - 1; i >= 0; i--) {
     const item = worldItems[i];
     const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist < player.radius + item.radius) {
-      assignItemToInventory({ type: item.type, icon: item.icon });
+      socket.emit("pickupItem", { type: item.type, icon: item.icon });
       worldItems.splice(i, 1);
     }
   }
@@ -278,17 +187,14 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Initialize world
-player.x = map.x;
-player.y = map.y;
+function drawBackground(cameraX, cameraY) {
+  ctx.fillStyle = "#a8d5a2";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
 
-const worldSize = 3000;
-generateGrass(2000, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSize / 2);
-generateFlowerPatches(50, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSize / 2);
+function drawGrass() {}
+function drawFlowerPatches() {}
 
-gameLoop();
-
-// DOM-READY INVENTORY SETUP
 window.addEventListener("DOMContentLoaded", () => {
   const inventoryButton = document.getElementById("inventory-button");
   const inventoryPanel = document.getElementById("inventory-panel");
@@ -312,48 +218,48 @@ window.addEventListener("DOMContentLoaded", () => {
     slot.style.backgroundPosition = "center";
     inventoryGrid.appendChild(slot);
   }
+});
 
-  const hotbarSlots = Array(10).fill(null);
-  window.hotbarSlots = hotbarSlots;
-  window.selectedSlotIndex = 0;
+function updateInventoryUI() {
+  const slots = window.inventoryGrid?.children;
+  if (!slots) return;
 
-  function updateHotbarUI() {
-    const hotbarElements = document.querySelectorAll(".hotbar-slot");
-    hotbarElements.forEach((el, i) => {
-      el.style.outline = i === selectedSlotIndex ? "2px solid #fff" : "none";
-      el.style.backgroundImage = hotbarSlots[i]?.icon ? `url(${hotbarSlots[i].icon})` : "none";
-      el.style.backgroundSize = "cover";
-      el.style.backgroundPosition = "center";
-    });
-  }
-
-  window.updateHotbarUI = updateHotbarUI;
-
-  function assignItemToHotbar(item) {
-    const index = hotbarSlots.findIndex(slot => slot === null);
-    if (index !== -1) {
-      hotbarSlots[index] = item;
-      updateHotbarUI();
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i];
+    const item = inventory[i];
+    if (item) {
+      slot.style.backgroundImage = `url(${item.icon})`;
+      slot.style.backgroundSize = "cover";
+      slot.style.backgroundPosition = "center";
+            slot.dataset.filled = "true";
+    } else {
+      slot.style.backgroundImage = "none";
+      slot.dataset.filled = "false";
     }
   }
+}
 
-  window.assignItemToHotbar = assignItemToHotbar;
+// Socket event listeners
+socket.on("connect", () => {
+  console.log("Connected to server:", socket.id);
+});
 
-  function assignItemToInventory(item) {
-    const slots = window.inventoryGrid?.children;
-    if (!slots) return;
+socket.on("init", data => {
+  player.x = data.x;
+  player.y = data.y;
+  inventory = data.inventory || [];
+  updateInventoryUI();
+});
 
-    for (let i = 0; i < slots.length; i++) {
-      const slot = slots[i];
-      if (!slot.dataset.filled || slot.dataset.filled === "false") {
-        slot.style.backgroundImage = `url(${item.icon})`;
-        slot.style.backgroundSize = "cover";
-        slot.style.backgroundPosition = "center";
-        slot.dataset.filled = "true";
-        break;
-      }
-    }
-  }
+socket.on("inventoryUpdate", newInventory => {
+  inventory = newInventory;
+  updateInventoryUI();
+});
 
-  window.assignItemToInventory = assignItemToInventory;
+socket.on("playerMoved", ({ id, x, y }) => {
+  // Optional: render other players here
+});
+
+socket.on("playerDisconnected", id => {
+  // Optional: remove disconnected player visuals
 });
