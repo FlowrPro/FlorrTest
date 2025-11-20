@@ -85,7 +85,7 @@ function updatePlayer() {
 
 function drawBackground(cameraX, cameraY) {
   ctx.fillStyle = "#a8d5a2";
-  ctx.fillRect(0, 0, canvas.width, canvas.height); // Removed globalAlpha
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const gradient = ctx.createRadialGradient(
     map.x - cameraX,
@@ -179,8 +179,6 @@ function drawFlower(x, y) {
   ctx.restore();
 }
 
-
-
 function drawPlayer(cameraX, cameraY) {
   const px = player.x - cameraX;
   const py = player.y - cameraY;
@@ -226,7 +224,6 @@ function drawPlayer(cameraX, cameraY) {
   ctx.fillStyle = "#fff";
   ctx.fill();
 
-  // ✅ Fixed smile arc line
   ctx.beginPath();
   ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI, 0.8 * Math.PI);
   ctx.strokeStyle = "#000";
@@ -235,7 +232,6 @@ function drawPlayer(cameraX, cameraY) {
 
   ctx.restore();
 }
-
 
 function drawWorldItems(cameraX, cameraY) {
   for (const item of worldItems) {
@@ -250,8 +246,11 @@ function drawWorldItems(cameraX, cameraY) {
     if (!item._img) {
       item._img = new Image();
       item._img.src = item.icon;
+      item._img.onload = () => item._img._loaded = true;
+      item._img.onerror = () => item._img._failed = true;
     }
-    if (item._img.complete) {
+
+    if (item._img._loaded) {
       ctx.drawImage(item._img, px - item.radius, py - item.radius, item.radius * 2, item.radius * 2);
     }
   }
@@ -292,12 +291,6 @@ generateGrass(2000, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSi
 generateFlowerPatches(50, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSize / 2);
 
 gameLoop();
-
-// Simulate assigning a petal to slot 1
-assignItemToHotbar({
-  type: "redPetal",
-  icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
-});
 
 // Inventory system
 const inventoryButton = document.getElementById("inventory-button");
@@ -341,3 +334,9 @@ function assignItemToHotbar(item) {
     updateHotbarUI();
   }
 }
+
+// ✅ Moved this below hotbarSlots declaration to fix ReferenceError
+assignItemToHotbar({
+  type: "redPetal",
+  icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
+});
