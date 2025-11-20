@@ -3,7 +3,7 @@ const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 10
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
-
+document.addEventListener("contextmenu", e => e.preventDefault());
 // FPS camera rig
 const yaw = new THREE.Object3D();
 const pitch = new THREE.Object3D();
@@ -12,9 +12,19 @@ pitch.add(camera);
 camera.position.y = 1.6;
 scene.add(yaw);
 
+// Movement and physics
 const controls = { forward: false, backward: false, left: false, right: false };
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
+let verticalVelocity = 0;
+const gravity = -0.01;
+const jumpStrength = 0.2;
+let isGrounded = true;
+
+// Aiming
+let isAiming = false;
+
+// Raycasting
 const raycaster = new THREE.Raycaster();
 let enemies = [];
 
@@ -29,7 +39,7 @@ scene.add(floor);
 // Light
 scene.add(new THREE.AmbientLight(0xffffff));
 
-// Gun
+// Gun model
 const gun = new THREE.Mesh(
   new THREE.BoxGeometry(0.3, 0.2, 1),
   new THREE.MeshBasicMaterial({ color: 0x888888 })
@@ -80,17 +90,38 @@ document.addEventListener("pointerlockchange", () => {
 });
 
 function onMouseMove(e) {
-  yaw.rotation.y -= e.movementX * 0.002;
-  pitch.rotation.x -= e.movementY * 0.002;
+  const sensitivity = isAiming ? 0.001 : 0.002;
+  yaw.rotation.y -= e.movementX * sensitivity;
+  pitch.rotation.x -= e.movementY * sensitivity;
   pitch.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch.rotation.x));
 }
 
-// Movement
+// Mouse buttons
+document.addEventListener("mousedown", e => {
+  if (e.button === 2) {
+    isAiming = true;
+    camera.fov = 45;
+    camera.updateProjectionMatrix();
+  }
+});
+document.addEventListener("mouseup", e => {
+  if (e.button === 2) {
+    isAiming = false;
+    camera.fov = 75;
+    camera.updateProjectionMatrix();
+  }
+});
+
+// Keyboard
 document.addEventListener("keydown", e => {
   if (e.code === "KeyW") controls.forward = true;
   if (e.code === "KeyS") controls.backward = true;
   if (e.code === "KeyA") controls.left = true;
   if (e.code === "KeyD") controls.right = true;
+  if (e.code === "Space" && isGrounded) {
+    verticalVelocity = jumpStrength;
+    isGrounded = false;
+  }
 });
 document.addEventListener("keyup", e => {
   if (e.code === "KeyW") controls.forward = false;
@@ -111,8 +142,17 @@ function animate() {
   direction.normalize();
 
   velocity.copy(direction).applyEuler(yaw.rotation).multiplyScalar(0.1);
-  yaw.position.add(velocity);
 
+  // Gravity and jumping
+  verticalVelocity += gravity;
+  yaw.position.y += verticalVelocity;
+  if (yaw.position.y <= 0) {
+    yaw.position.y = 0;
+    verticalVelocity = 0;
+    isGrounded = true;
+  }
+
+  yaw.position.add(new THREE.Vector3(velocity.x, 0, velocity.z));
   renderer.render(scene, camera);
 }
 animate();
