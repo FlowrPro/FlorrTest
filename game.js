@@ -307,12 +307,6 @@ const petalCount = 40;
 for (let i = 0; i < petalCount; i++) {
   const slot = document.createElement("div");
   slot.className = "inventory-slot";
-  slot.style.width = "40px";
-  slot.style.height = "40px";
-  slot.style.backgroundColor = "#555";
-  slot.style.border = "1px solid #999";
-  slot.style.borderRadius = "4px";
-  slot.style.margin = "2px";
   slot.dataset.filled = "false";
   inventoryGrid.appendChild(slot);
 }
@@ -341,11 +335,8 @@ function assignItemToInventory(item) {
   const slots = inventoryGrid.children;
   for (let i = 0; i < slots.length; i++) {
     const slot = slots[i];
-    console.log("Item added to inventory:", item); // test to verify DOM
     if (!slot.dataset.filled || slot.dataset.filled === "false") {
       slot.style.backgroundImage = `url(${item.icon})`;
-      slot.style.backgroundSize = "cover";
-      slot.style.backgroundPosition = "center";
       slot.dataset.filled = "true";
       break;
     }
