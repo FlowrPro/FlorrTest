@@ -213,9 +213,9 @@ function drawPlayer(cameraX, cameraY) {
 
   // Smile
   ctx.beginPath();
-  ctx.arc(0, r * 0.2, r * 0.5, 0, Math.PI);
+  ctx.arc(0, r * 0.3, r * 0.3, 0.2 * Math.PI, 0.8 * Math.PI);
   ctx.strokeStyle = "#000";
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
   ctx.restore();
