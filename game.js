@@ -254,6 +254,12 @@ generateGrass(2000, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSi
 generateFlowerPatches(50, worldSize, worldSize, map.x - worldSize / 2, map.y - worldSize / 2);
 
 gameLoop();
+// Simulate assigning a petal to slot 1
+assignItemToHotbar({
+  type: "redPetal",
+  icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
+});
+
 // Start of inventory system
 const inventoryButton = document.getElementById("inventory-button");
 const inventoryPanel = document.getElementById("inventory-panel");
@@ -296,8 +302,3 @@ function assignItemToHotbar(item) {
     updateHotbarUI();
   }
 }
-// Simulate assigning a petal to slot 1
-assignItemToHotbar({
-  type: "redPetal",
-  icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"
-});
