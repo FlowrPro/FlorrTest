@@ -9,14 +9,14 @@ window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
 window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
 const map = {
-  x: canvas.width / 2,
-  y: canvas.height / 2,
+  x: 0,
+  y: 0,
   radius: 800
 };
 
 const player = {
-  x: map.x,
-  y: map.y,
+  x: 0,
+  y: 0,
   radius: 20,
   speed: 3,
   angle: 0,
@@ -25,7 +25,7 @@ const player = {
 
 function loadSprite() {
   const img = new Image();
-  img.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png"; // Placeholder flower
+  img.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Simple_flower_icon.svg/1024px-Simple_flower_icon.svg.png";
   img.onload = () => player.sprite = img;
 }
 loadSprite();
@@ -46,40 +46,51 @@ function updatePlayer() {
     player.y = newY;
   }
 
-  player.angle = Math.atan2(dy, dx);
-}
-
-function drawMap() {
-  ctx.beginPath();
-  ctx.arc(map.x, map.y, map.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "#444";
-  ctx.fill();
-  ctx.strokeStyle = "#888";
-  ctx.lineWidth = 5;
-  ctx.stroke();
-}
-
-function drawPlayer() {
-  if (player.sprite) {
-    ctx.save();
-    ctx.translate(player.x, player.y);
-    ctx.rotate(player.angle);
-    ctx.drawImage(player.sprite, -player.radius, -player.radius, player.radius * 2, player.radius * 2);
-    ctx.restore();
-  } else {
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "#ff0";
-    ctx.fill();
+  if (dx !== 0 || dy !== 0) {
+    player.angle = Math.atan2(dy, dx);
   }
 }
 
+function drawBackground(cameraX, cameraY) {
+  ctx.fillStyle = "#0a3"; // Dark green outside
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  ctx.translate(-cameraX, -cameraY);
+  ctx.beginPath();
+  ctx.arc(map.x, map.y, map.radius, 0, Math.PI * 2);
+  ctx.fillStyle = "#0f6"; // Bright green inside
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawPlayer(cameraX, cameraY) {
+  ctx.save();
+  ctx.translate(player.x - cameraX, player.y - cameraY);
+  ctx.rotate(player.angle);
+  if (player.sprite) {
+    ctx.drawImage(player.sprite, -player.radius, -player.radius, player.radius * 2, player.radius * 2);
+  } else {
+    ctx.beginPath();
+    ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+    ctx.fillStyle = "#ff0";
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
 function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawMap();
   updatePlayer();
-  drawPlayer();
+
+  const cameraX = player.x - canvas.width / 2;
+  const cameraY = player.y - canvas.height / 2;
+
+  drawBackground(cameraX, cameraY);
+  drawPlayer(cameraX, cameraY);
+
   requestAnimationFrame(gameLoop);
 }
 
+player.x = map.x;
+player.y = map.y;
 gameLoop();
