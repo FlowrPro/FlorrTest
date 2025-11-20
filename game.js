@@ -168,7 +168,6 @@ function drawPlayer(cameraX, cameraY) {
 
   ctx.save();
   ctx.translate(px, py);
-  ctx.rotate(player.angle);
 
   // Outer yellow ring
   ctx.beginPath();
@@ -182,22 +181,33 @@ function drawPlayer(cameraX, cameraY) {
   ctx.fillStyle = "#ff9900";
   ctx.fill();
 
-  // Eyes
+  // Eye direction based on movement
+  let dx = 0, dy = 0;
+  if (keys["w"]) dy -= 1;
+  if (keys["s"]) dy += 1;
+  if (keys["a"]) dx -= 1;
+  if (keys["d"]) dx += 1;
+
   const eyeOffsetX = r * 0.4;
   const eyeOffsetY = -r * 0.3;
   const eyeRadius = r * 0.2;
+  const eyeLookOffset = 2;
 
+  const eyeDirX = dx * eyeLookOffset;
+  const eyeDirY = dy * eyeLookOffset;
+
+  // Eyes
   ctx.beginPath();
-  ctx.arc(-eyeOffsetX, eyeOffsetY, eyeRadius, 0, Math.PI * 2);
-  ctx.arc(eyeOffsetX, eyeOffsetY, eyeRadius, 0, Math.PI * 2);
+  ctx.arc(-eyeOffsetX + eyeDirX, eyeOffsetY + eyeDirY, eyeRadius, 0, Math.PI * 2);
+  ctx.arc(eyeOffsetX + eyeDirX, eyeOffsetY + eyeDirY, eyeRadius, 0, Math.PI * 2);
   ctx.fillStyle = "#000";
   ctx.fill();
 
   // Eye highlights
   const highlightRadius = eyeRadius * 0.4;
   ctx.beginPath();
-  ctx.arc(-eyeOffsetX - highlightRadius / 2, eyeOffsetY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
-  ctx.arc(eyeOffsetX - highlightRadius / 2, eyeOffsetY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
+  ctx.arc(-eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
+  ctx.arc(eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
   ctx.fillStyle = "#fff";
   ctx.fill();
 
