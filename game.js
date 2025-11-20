@@ -1,11 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const map = {
-  x: 0,
-  y: 0,
-  radius: 800
-};
+const map = { x: 0, y: 0, radius: 800 };
 
 const player = {
   x: 0,
@@ -220,7 +216,7 @@ function drawPlayer(cameraX, cameraY) {
   const highlightRadius = eyeRadius * 0.4;
   ctx.beginPath();
   ctx.arc(-eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
-  ctx.arc(eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
+    ctx.arc(eyeOffsetX + eyeDirX - highlightRadius / 2, eyeOffsetY + eyeDirY - highlightRadius / 2, highlightRadius, 0, Math.PI * 2);
   ctx.fillStyle = "#fff";
   ctx.fill();
 
@@ -264,9 +260,9 @@ function gameLoop() {
     const item = worldItems[i];
     const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist < player.radius + item.radius) {
-  assignItemToInventory({ type: item.type, icon: item.icon });
-  worldItems.splice(i, 1);
-}
+      assignItemToInventory({ type: item.type, icon: item.icon });
+      worldItems.splice(i, 1);
+    }
   }
 
   const dpr = window.devicePixelRatio || 1;
@@ -302,12 +298,19 @@ inventoryButton.addEventListener("click", () => {
 
 const inventoryGrid = document.getElementById("inventory-grid");
 
-// Simulate petals/items
+// Create inventory slots
 const petalCount = 40;
 for (let i = 0; i < petalCount; i++) {
   const slot = document.createElement("div");
   slot.className = "inventory-slot";
   slot.dataset.filled = "false";
+  slot.style.width = "40px";
+  slot.style.height = "40px";
+  slot.style.backgroundColor = "#555";
+  slot.style.border = "1px solid #999";
+  slot.style.borderRadius = "4px";
+  slot.style.backgroundSize = "cover";
+  slot.style.backgroundPosition = "center";
   inventoryGrid.appendChild(slot);
 }
 
@@ -331,14 +334,15 @@ function assignItemToHotbar(item) {
     updateHotbarUI();
   }
 }
+
 function assignItemToInventory(item) {
   const slots = inventoryGrid.children;
   for (let i = 0; i < slots.length; i++) {
     const slot = slots[i];
     if (!slot.dataset.filled || slot.dataset.filled === "false") {
       slot.style.backgroundImage = `url(${item.icon})`;
-      slot.style.backgroundSize = "cover";           // ✅ Add this
-      slot.style.backgroundPosition = "center";      // ✅ Add this
+      slot.style.backgroundSize = "cover";
+      slot.style.backgroundPosition = "center";
       slot.dataset.filled = "true";
       break;
     }
