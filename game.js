@@ -64,14 +64,19 @@ function updatePlayer() {
 }
 
 function drawBackground(cameraX, cameraY) {
-  // Faded outer area
   ctx.fillStyle = "#a8d5a2";
   ctx.globalAlpha = 0.2;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.globalAlpha = 1;
 
-  // Garden-style gradient fixed to map center
-  const gradient = ctx.createRadialGradient(map.x - cameraX, map.y - cameraY, 0, map.x - cameraX, map.y - cameraY, map.radius);
+  const gradient = ctx.createRadialGradient(
+    map.x - cameraX,
+    map.y - cameraY,
+    0,
+    map.x - cameraX,
+    map.y - cameraY,
+    map.radius
+  );
   gradient.addColorStop(0, "#c8facc");
   gradient.addColorStop(1, "#7bbf7b");
 
@@ -172,10 +177,12 @@ function drawPlayer(cameraX, cameraY) {
 }
 
 function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   updatePlayer();
 
-  const cameraX = player.x - canvas.width / (window.devicePixelRatio || 1) / 2;
-  const cameraY = player.y - canvas.height / (window.devicePixelRatio || 1) / 2;
+  const dpr = window.devicePixelRatio || 1;
+  const cameraX = Math.floor(player.x - canvas.width / dpr / 2);
+  const cameraY = Math.floor(player.y - canvas.height / dpr / 2);
 
   drawBackground(cameraX, cameraY);
   drawGrass(cameraX, cameraY);
