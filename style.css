@@ -5,9 +5,7 @@ body {
 }
 
 canvas {
-  display: block;
-  margin: auto;
-  background: #222;
+  display: block; /* Size set in JS for crisp pixels */
 }
 
 /* Hotbar bottom center */
@@ -37,7 +35,7 @@ canvas {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: cyan; /* petal color */
+  background: cyan; /* default petal color */
 }
 
 /* Inventory panel */
@@ -52,7 +50,10 @@ canvas {
   padding: 10px;
 }
 
-.hidden { display: none; }
+/* Fix: ensure hidden overrides #inventory's display using higher specificity */
+#inventory.hidden {
+  display: none;
+}
 
 /* Toggle button bottom-left */
 #invToggle {
@@ -60,4 +61,5 @@ canvas {
   bottom: 10px;
   left: 10px;
   padding: 5px 10px;
+  z-index: 10;
 }
