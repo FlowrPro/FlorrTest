@@ -13,24 +13,32 @@ window.addEventListener("resize", resizeCanvas);
 const socket = io("https://florrtest-backend-1.onrender.com"); // replace with your backend URL
 setSocket(socket);
 
-let player = { id: null, x: 0, y: 0, radius: 20, hotbar: [], orbitAngle: 0 };
+let player = { 
+  id: null, 
+  x: 0, 
+  y: 0, 
+  radius: 20, 
+  hotbar: [], 
+  orbitAngle: 0,
+  orbitDist: 56,       // NEW: per-player orbit distance
+  leftHeld: false,     // NEW: per-player input state
+  rightHeld: false,
+  username: null
+};
 let orbitSpeed = 0.02;
-let orbitDist = 56;
 let extendDist = 96;
 let retractDist = 41;
-let leftHeld = false;
-let rightHeld = false;
 let world = { centerX: 800, centerY: 450, mapRadius: 390 };
 let items = [];
 let otherPlayers = {};
 
 canvas.addEventListener("mousedown", e => {
-  if (e.button === 0) leftHeld = true;
-  if (e.button === 2) rightHeld = true;
+  if (e.button === 0) player.leftHeld = true;
+  if (e.button === 2) player.rightHeld = true;
 });
 canvas.addEventListener("mouseup", e => {
-  if (e.button === 0) leftHeld = false;
-  if (e.button === 2) rightHeld = false;
+  if (e.button === 0) player.leftHeld = false;
+  if (e.button === 2) player.rightHeld = false;
 });
 canvas.addEventListener("contextmenu", e => e.preventDefault());
 
@@ -55,9 +63,18 @@ function update() {
   if (keys["d"]) dx += 1;
   if (dx !== 0 || dy !== 0) socket.emit("move", { dx, dy });
 
-  orbitDist = leftHeld ? extendDist : rightHeld ? retractDist : 56;
+  // Orbit distance controlled per player
+  if (player.leftHeld) {
+    player.orbitDist = extendDist;
+  } else if (player.rightHeld) {
+    player.orbitDist = retractDist;
+  } else {
+    player.orbitDist = 56;
+  }
 
-  // --- NEW: check for item collisions ---
+  socket.emit("orbit_control", { orbitDist: player.orbitDist });
+
+  // Item collisions
   items.forEach(item => {
     const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist < player.radius + item.radius) {
@@ -76,7 +93,7 @@ function drawPlayer(p) {
   ctx.strokeStyle = "yellow";
   ctx.stroke();
 
-  // --- NEW: Username above player ---
+  // Username above player
   if (p.username) {
     ctx.fillStyle = "white";
     ctx.font = "16px Arial";
@@ -121,8 +138,8 @@ function drawPlayer(p) {
     const angleStep = (2 * Math.PI) / equipped.length;
     equipped.forEach((item, idx) => {
       const angle = p.orbitAngle + idx * angleStep;
-      const x = p.x + orbitDist * Math.cos(angle);
-      const y = p.y + orbitDist * Math.sin(angle);
+      const x = p.x + (p.orbitDist || 56) * Math.cos(angle);
+      const y = p.y + (p.orbitDist || 56) * Math.sin(angle);
       ctx.beginPath();
       ctx.arc(x, y, 8, 0, Math.PI * 2);
       ctx.fillStyle = item.color || "cyan";
@@ -143,17 +160,14 @@ function draw() {
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Draw self
   if (player.id) {
     drawPlayer(player);
   }
 
-  // Draw other players
   Object.values(otherPlayers).forEach(p => {
     drawPlayer(p);
   });
 
-  // Items on ground
   items.forEach(item => {
     ctx.beginPath();
     ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
@@ -200,8 +214,9 @@ socket.on("player_update", p => {
     player.x = p.x;
     player.y = p.y;
     player.orbitAngle = p.orbitAngle;
+    player.orbitDist = p.orbitDist; // NEW
     hotbar.splice(0, hotbar.length, ...p.hotbar);
-    player.username = p.username; // NEW
+    player.username = p.username;
   } else {
     otherPlayers[p.id] = p;
   }
