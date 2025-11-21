@@ -58,7 +58,21 @@ document.getElementById("invToggle").onclick = toggleInventory;
 function toggleInventory() {
   document.getElementById("inventory").classList.toggle("hidden");
 }
+// --- Settings toggle ---
+const settingsBtn = document.getElementById("settings-btn");
+const settingsPanel = document.getElementById("settings-panel");
+const closeSettings = document.getElementById("close-settings");
 
+if (settingsBtn) {
+  settingsBtn.addEventListener("click", () => {
+    settingsPanel.classList.toggle("show");
+  });
+}
+if (closeSettings) {
+  closeSettings.addEventListener("click", () => {
+    settingsPanel.classList.remove("show");
+  });
+}
 const keys = {};
 document.addEventListener("keydown", e => (keys[e.key] = true));
 document.addEventListener("keyup", e => (keys[e.key] = false));
