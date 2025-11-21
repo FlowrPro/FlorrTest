@@ -67,10 +67,9 @@ function update() {
 }
 
 function draw() {
-  // Clear the canvas completely each frame
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(0,128,0,0.25)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Background map
   ctx.beginPath();
   ctx.arc(world.centerX, world.centerY, world.mapRadius, 0, Math.PI * 2);
   ctx.fillStyle = "#2ecc71";
