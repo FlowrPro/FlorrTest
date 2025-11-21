@@ -10,14 +10,14 @@ canvas {
   background: #222;
 }
 
-/* Quick slots bottom center */
-#slots {
+/* Hotbar bottom center */
+#hotbar {
   position: absolute;
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   display: grid;
-  grid-template-columns: repeat(5, 50px);
+  grid-template-columns: repeat(10, 50px);
   grid-gap: 5px;
 }
 
