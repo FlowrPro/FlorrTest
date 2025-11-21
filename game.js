@@ -214,7 +214,8 @@ socket.on("player_update", p => {
     player.x = p.x;
     player.y = p.y;
     player.orbitAngle = p.orbitAngle;
-    player.orbitDist = p.orbitDist; // NEW
+    player.orbitDist = p.orbitDist;
+    player.hotbar = [...p.hotbar];   // <-- FIX: update player.hotbar
     hotbar.splice(0, hotbar.length, ...p.hotbar);
     player.username = p.username;
   } else {
