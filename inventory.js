@@ -14,12 +14,16 @@ function makeIcon(item) {
   icon.className = "icon";
   if (item?.color) icon.style.background = item.color;
 
-  // Tooltip with stats
+  // Tooltip with structured stats
   if (item) {
     const tooltip = document.createElement("div");
     tooltip.className = "tooltip";
-    tooltip.innerText =
-      `${item.name}\nDamage: ${item.damage}\nHealth: ${item.health}\n${item.description}`;
+    tooltip.innerHTML = `
+      <div class="tooltip-title">${item.name}</div>
+      <div class="tooltip-stat">Damage: <span>${item.damage}</span></div>
+      <div class="tooltip-stat">Health: <span>${item.health}</span></div>
+      <div class="tooltip-desc">${item.description}</div>
+    `;
     icon.appendChild(tooltip);
   }
 
