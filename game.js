@@ -190,22 +190,26 @@ if (p.health > 0) {
 ctx.strokeStyle = "black";
 ctx.lineWidth = 2;
 ctx.stroke();
-  // Orbiting petals: only if alive
-  if (p.health > 0) {
-    const equipped = p.hotbar.filter(i => i);
-    if (equipped.length > 0) {
-      const angleStep = (2 * Math.PI) / equipped.length;
-      equipped.forEach((item, idx) => {
-        const angle = p.orbitAngle + idx * angleStep;
-        const x = p.x + (p.orbitDist || 56) * Math.cos(angle);
-        const y = p.y + (p.orbitDist || 56) * Math.sin(angle);
-        ctx.beginPath();
-        ctx.arc(x, y, 8, 0, Math.PI * 2);
-        ctx.fillStyle = item.color || "cyan";
-        ctx.fill();
-      });
-    }
+  // Orbiting petals: only draw if alive and not reloading
+if (p.health > 0) {
+  const equipped = p.hotbar.filter(i => i);
+  if (equipped.length > 0) {
+    const angleStep = (2 * Math.PI) / equipped.length;
+    const now = Date.now();
+    equipped.forEach((item, idx) => {
+      // Skip petals that are currently reloading
+      if (item.reloadUntil && now < item.reloadUntil) return;
+
+      const angle = p.orbitAngle + idx * angleStep;
+      const x = p.x + (p.orbitDist || 56) * Math.cos(angle);
+      const y = p.y + (p.orbitDist || 56) * Math.sin(angle);
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = item.color || "cyan";
+      ctx.fill();
+    });
   }
+}
 }
 
 function draw() {
