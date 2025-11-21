@@ -10,7 +10,7 @@ function resizeCanvas() {
 resizeCanvas(); // initial call
 window.addEventListener("resize", resizeCanvas);
 
-const socket = io("https://florrtest-backend-1.onrender.com"); // replace with your backend URL
+const socket = io("https://florrtest-backend-1.onrender.com"); 
 setSocket(socket);
 
 let player = { 
@@ -115,7 +115,7 @@ function drawPlayer(p) {
     const barWidth = 40;
     const barHeight = 6;
     const x = p.x - barWidth / 2;
-    const y = p.y - p.radius - 20;
+    const y = p.y + p.radius + 10; // BELOW player
 
     // Background
     ctx.fillStyle = "black";
