@@ -10,6 +10,8 @@ let mapRadius = 0;
 
 const player = { x: 0, y: 0, radius: 12, speed: 3 };
 const keys = {};
+let orbitAngle = 0;           // base angle for rotation
+let orbitSpeed = 0.02;        // tweak this for faster/slower rotation
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -32,7 +34,7 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("keyup", e => (keys[e.key] = false));
 
-// --- FIX: spawn test petal on ground, not equipped ---
+// Spawn test item
 const itemsOnMap = [
   { name: "Petal", color: "cyan", x: centerX + 60, y: centerY, radius: 8 }
 ];
@@ -55,15 +57,18 @@ function update() {
     player.y = centerY + (mapRadius - player.radius) * Math.sin(angle);
   }
 
-  // --- FIX: pickup sends item to inventory only ---
+  // Pickup check
   itemsOnMap.forEach((item, idx) => {
     const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist < player.radius + item.radius) {
       if (addItem({ name: item.name, color: item.color })) {
-        itemsOnMap.splice(idx, 1); // remove from ground
+        itemsOnMap.splice(idx, 1);
       }
     }
   });
+
+  // Orbit angle update
+  orbitAngle += orbitSpeed;
 }
 
 function draw() {
@@ -103,7 +108,7 @@ function draw() {
     const angleStep = (2 * Math.PI) / equipped.length;
     const orbitDist = player.radius + 28;
     equipped.forEach((item, idx) => {
-      const angle = idx * angleStep;
+      const angle = orbitAngle + idx * angleStep;
       const x = player.x + orbitDist * Math.cos(angle);
       const y = player.y + orbitDist * Math.sin(angle);
       ctx.beginPath();
