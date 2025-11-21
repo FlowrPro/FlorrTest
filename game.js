@@ -266,6 +266,25 @@ socket.on("player_join", p => {
 socket.on("player_leave", ({ id }) => {
   delete otherPlayers[id];
 });
+// --- Death screen events ---
+socket.on("player_dead", () => {
+  const deathScreen = document.getElementById("death-screen");
+  deathScreen.style.display = "flex"; // show overlay
+  document.getElementById("gameCanvas").classList.add("blurred");
+});
+
+socket.on("respawn_success", () => {
+  const deathScreen = document.getElementById("death-screen");
+  deathScreen.style.display = "none";
+  document.getElementById("gameCanvas").classList.remove("blurred");
+});
+
+const respawnBtn = document.getElementById("respawn-btn");
+if (respawnBtn) {
+  respawnBtn.addEventListener("click", () => {
+    socket.emit("respawn_request");
+  });
+}
 
 // --- Homescreen Play Button ---
 const playBtn = document.getElementById("play-btn");
