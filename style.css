@@ -9,6 +9,54 @@ canvas {
   display: block;
 }
 
+/* Homescreen overlay */
+#homescreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: green;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100; /* above everything */
+}
+
+.game-title {
+  font-size: 4rem;
+  color: white;
+  margin-bottom: 40px;
+}
+
+.username-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#username {
+  padding: 10px;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: none;
+}
+
+#play-btn {
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  background-color: white;
+  color: green;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#play-btn:hover {
+  background-color: #ddd;
+}
 
 /* Hotbar bottom center */
 #hotbar {
