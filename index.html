@@ -6,21 +6,21 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Homescreen overlay -->
-  <div id="homescreen">
-    <h1 class="game-title">Flowers BETA</h1>
-    <div class="username-container">
-      <input type="text" id="username" placeholder="Enter your username">
-      <button id="play-btn">Play</button>
-    </div>
-
-    <!-- Settings button top-left (inside homescreen so it's visible there too) -->
-    <button id="settings-btn">
-      <span class="gear-icon">
-        <span></span><span></span><span></span><span></span>
-      </span>
-    </button>
+<!-- Homescreen overlay -->
+<div id="homescreen">
+  <h1 class="game-title">Flowers BETA</h1>
+  <div class="username-container">
+    <input type="text" id="username" placeholder="Enter your username">
+    <button id="play-btn">Play</button>
   </div>
+</div>
+
+<!-- Settings button top-left (global, visible in homescreen and game) -->
+<button id="settings-btn">
+  <span class="gear-icon">
+    <span></span><span></span><span></span><span></span>
+  </span>
+</button>
 
   <!-- Fullscreen canvas -->
   <canvas id="gameCanvas"></canvas>
