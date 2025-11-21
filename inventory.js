@@ -1,9 +1,9 @@
 // inventory.js
-export const inventory = new Array(18).fill(null); // full inventory
-export const slots = new Array(5).fill(null);      // quick slots
+export const inventory = new Array(24).fill(null); // main inventory
+export const hotbar = new Array(10).fill(null);    // hotbar slots
 
 const invEl = document.getElementById("inventory");
-const slotsEl = document.getElementById("slots");
+const hotbarEl = document.getElementById("hotbar");
 
 export function renderInventory() {
   invEl.innerHTML = "";
@@ -13,30 +13,38 @@ export function renderInventory() {
     slot.textContent = item ? item.name : "";
     slot.draggable = !!item;
     slot.dataset.index = i;
+    slot.dataset.type = "inventory";
+    slot.ondragstart = e => {
+      e.dataTransfer.setData("index", i);
+      e.dataTransfer.setData("type", "inventory");
+    };
     invEl.appendChild(slot);
   });
 }
 
-export function renderSlots() {
-  slotsEl.innerHTML = "";
-  slots.forEach((item, i) => {
+export function renderHotbar() {
+  hotbarEl.innerHTML = "";
+  hotbar.forEach((item, i) => {
     const slot = document.createElement("div");
     slot.className = "slot";
     slot.textContent = item ? item.name : "";
     slot.dataset.index = i;
-    slot.dataset.type = "quick";
+    slot.dataset.type = "hotbar";
     slot.ondragover = e => e.preventDefault();
     slot.ondrop = e => {
       const fromIndex = e.dataTransfer.getData("index");
-      const fromItem = inventory[fromIndex];
-      if (fromItem) {
-        slots[i] = fromItem;
-        inventory[fromIndex] = null;
-        renderInventory();
-        renderSlots();
+      const fromType = e.dataTransfer.getData("type");
+      if (fromType === "inventory") {
+        const fromItem = inventory[fromIndex];
+        if (fromItem) {
+          hotbar[i] = fromItem;
+          inventory[fromIndex] = null;
+          renderInventory();
+          renderHotbar();
+        }
       }
     };
-    slotsEl.appendChild(slot);
+    hotbarEl.appendChild(slot);
   });
 }
 
@@ -48,13 +56,4 @@ export function addItem(item) {
     return true;
   }
   return false;
-}
-
-// Drag setup
-export function enableDrag() {
-  invEl.querySelectorAll(".slot").forEach(slot => {
-    slot.ondragstart = e => {
-      e.dataTransfer.setData("index", slot.dataset.index);
-    };
-  });
 }
