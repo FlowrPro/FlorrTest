@@ -110,7 +110,27 @@ function drawPlayer(p) {
     ctx.textAlign = "center";
     ctx.fillText(p.username, p.x, p.y - p.radius - 10);
   }
+    // Health bar above player
+  if (typeof p.health === "number") {
+    const barWidth = 40;
+    const barHeight = 6;
+    const x = p.x - barWidth / 2;
+    const y = p.y - p.radius - 20;
 
+    // Background
+    ctx.fillStyle = "black";
+    ctx.fillRect(x, y, barWidth, barHeight);
+
+    // Current health
+    const healthPercent = Math.max(0, p.health) / 100;
+    ctx.fillStyle = "lime";
+    ctx.fillRect(x, y, barWidth * healthPercent, barHeight);
+
+    // Border
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, barWidth, barHeight);
+  }
   // Eyes
   const eyeOffsetX = p.radius * 0.4;
   const eyeOffsetY = p.radius * -0.3;
