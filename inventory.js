@@ -1,9 +1,13 @@
-// inventory.js
-export const inventory = new Array(24).fill(null); // main inventory
-export const hotbar = new Array(10).fill(null);    // hotbar slots
+export const inventory = new Array(24).fill(null);
+export const hotbar = new Array(10).fill(null);
 
 const invEl = document.getElementById("inventory");
 const hotbarEl = document.getElementById("hotbar");
+
+let socket = null;
+export function setSocket(s) {
+  socket = s;
+}
 
 function makeIcon(item) {
   const icon = document.createElement("div");
@@ -46,52 +50,23 @@ export function renderHotbar() {
     slot.ondrop = e => {
       const fromIndex = e.dataTransfer.getData("index");
       const fromType = e.dataTransfer.getData("type");
-
       if (fromType === "inventory") {
-        // equip from inventory
-        const fromItem = inventory[fromIndex];
-        if (fromItem) {
-          hotbar[i] = fromItem;
-          inventory[fromIndex] = null;
-        }
+        socket.emit("equip_request", { invIndex: parseInt(fromIndex), hotbarIndex: i });
       } else if (fromType === "hotbar") {
-        // move between hotbar slots
-        const fromItem = hotbar[fromIndex];
-        hotbar[i] = fromItem;
+        hotbar[i] = hotbar[fromIndex];
         hotbar[fromIndex] = null;
+        renderHotbar();
       }
-      renderInventory();
-      renderHotbar();
     };
     hotbarEl.appendChild(slot);
   });
 }
 
-// Allow dropping back into inventory
 invEl.ondragover = e => e.preventDefault();
 invEl.ondrop = e => {
   const fromIndex = e.dataTransfer.getData("index");
   const fromType = e.dataTransfer.getData("type");
   if (fromType === "hotbar") {
-    const fromItem = hotbar[fromIndex];
-    if (fromItem) {
-      const emptyIndex = inventory.findIndex(s => s === null);
-      if (emptyIndex !== -1) {
-        inventory[emptyIndex] = fromItem;
-        hotbar[fromIndex] = null;
-        renderInventory();
-        renderHotbar();
-      }
-    }
+    socket.emit("unequip_request", { hotbarIndex: parseInt(fromIndex) });
   }
 };
-
-export function addItem(item) {
-  const emptyIndex = inventory.findIndex(s => s === null);
-  if (emptyIndex !== -1) {
-    inventory[emptyIndex] = item;
-    renderInventory();
-    return true;
-  }
-  return false;
-}
