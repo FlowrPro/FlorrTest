@@ -1,5 +1,5 @@
 // game.js
-import { inventory, renderInventory, addItem } from "./inventory.js";
+import { inventory, slots, renderInventory, renderSlots, addItem, enableDrag } from "./inventory.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -11,7 +11,7 @@ const keys = {};
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
-// Spawn test item "Petal"
+// Spawn test item
 const itemsOnMap = [
   { name: "Petal", x: player.x + 40, y: player.y, radius: 8 }
 ];
@@ -76,6 +76,14 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Initialize
+// Init
 renderInventory();
+renderSlots();
+enableDrag();
 gameLoop();
+
+// Toggle inventory
+document.getElementById("invToggle").onclick = () => {
+  document.getElementById("inventory").classList.toggle("hidden");
+  enableDrag();
+};
