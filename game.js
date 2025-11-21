@@ -269,13 +269,13 @@ socket.on("player_leave", ({ id }) => {
 // --- Death screen events ---
 socket.on("player_dead", () => {
   const deathScreen = document.getElementById("death-screen");
-  deathScreen.style.display = "flex"; // show overlay
+  deathScreen.classList.add("show"); // fade in
   document.getElementById("gameCanvas").classList.add("blurred");
 });
 
 socket.on("respawn_success", () => {
   const deathScreen = document.getElementById("death-screen");
-  deathScreen.style.display = "none";
+  deathScreen.classList.remove("show"); // fade out
   document.getElementById("gameCanvas").classList.remove("blurred");
 });
 
