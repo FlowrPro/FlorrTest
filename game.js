@@ -3,7 +3,7 @@ import { inventory, hotbar, renderInventory, renderHotbar, setSocket } from "./i
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const socket = io("https://florrtest-backend.onrender.com"); // replace with your backend URL
+const socket = io("https://florrtest-backend-1.onrender.com"); // replace with your backend URL
 setSocket(socket);
 
 let player = { id: null, x: 0, y: 0, radius: 28, hotbar: [], orbitAngle: 0 };
