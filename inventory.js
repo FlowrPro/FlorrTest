@@ -37,23 +37,54 @@ export function renderHotbar() {
     if (item) slot.appendChild(makeIcon(item));
     slot.dataset.index = i;
     slot.dataset.type = "hotbar";
+    slot.draggable = !!item;
+    slot.ondragstart = e => {
+      e.dataTransfer.setData("index", i);
+      e.dataTransfer.setData("type", "hotbar");
+    };
     slot.ondragover = e => e.preventDefault();
     slot.ondrop = e => {
       const fromIndex = e.dataTransfer.getData("index");
       const fromType = e.dataTransfer.getData("type");
+
       if (fromType === "inventory") {
+        // equip from inventory
         const fromItem = inventory[fromIndex];
         if (fromItem) {
           hotbar[i] = fromItem;
           inventory[fromIndex] = null;
-          renderInventory();
-          renderHotbar();
         }
+      } else if (fromType === "hotbar") {
+        // move between hotbar slots
+        const fromItem = hotbar[fromIndex];
+        hotbar[i] = fromItem;
+        hotbar[fromIndex] = null;
       }
+      renderInventory();
+      renderHotbar();
     };
     hotbarEl.appendChild(slot);
   });
 }
+
+// Allow dropping back into inventory
+invEl.ondragover = e => e.preventDefault();
+invEl.ondrop = e => {
+  const fromIndex = e.dataTransfer.getData("index");
+  const fromType = e.dataTransfer.getData("type");
+  if (fromType === "hotbar") {
+    const fromItem = hotbar[fromIndex];
+    if (fromItem) {
+      const emptyIndex = inventory.findIndex(s => s === null);
+      if (emptyIndex !== -1) {
+        inventory[emptyIndex] = fromItem;
+        hotbar[fromIndex] = null;
+        renderInventory();
+        renderHotbar();
+      }
+    }
+  }
+};
 
 export function addItem(item) {
   const emptyIndex = inventory.findIndex(s => s === null);
