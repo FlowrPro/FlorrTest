@@ -64,6 +64,9 @@ document.addEventListener("keydown", e => (keys[e.key] = true));
 document.addEventListener("keyup", e => (keys[e.key] = false));
 
 function update() {
+  // Skip update if player not yet spawned
+  if (!player || !player.id) return;
+
   let dx = 0, dy = 0;
   if (keys["w"]) dy -= 1;
   if (keys["s"]) dy += 1;
@@ -264,12 +267,16 @@ gameLoop();
 // --- Socket events ---
 socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
   world = w;
-  player = self;
+  player = self || player; // keep default if self is null
   items = its;
-  inventory.splice(0, inventory.length, ...self.inventory);
-  hotbar.splice(0, hotbar.length, ...self.hotbar);
-  renderInventory();
-  renderHotbar();
+
+  if (self) { // only update inventory/hotbar if player exists
+    inventory.splice(0, inventory.length, ...self.inventory);
+    hotbar.splice(0, hotbar.length, ...self.hotbar);
+    renderInventory();
+    renderHotbar();
+  }
+
   players.forEach(p => (otherPlayers[p.id] = p));
 });
 
