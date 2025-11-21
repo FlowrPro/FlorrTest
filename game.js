@@ -3,7 +3,7 @@ import { inventory, hotbar, renderInventory, renderHotbar, setSocket } from "./i
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const socket = io("https://florrtest-backend-1.onrender.com"); // replace with your backend URL
+const socket = io("https://your-render-backend-url"); // replace with your backend URL
 setSocket(socket);
 
 let player = { id: null, x: 0, y: 0, radius: 28, hotbar: [], orbitAngle: 0 };
@@ -63,61 +63,59 @@ function draw() {
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Player face
-  if (player.id) {
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "orange";
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "yellow";
-    ctx.stroke();
+  // --- Player face (always draw, no guard) ---
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+  ctx.fillStyle = "orange";
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "yellow";
+  ctx.stroke();
 
-    // Eyes
-    const eyeOffsetX = player.radius * 0.4;
-    const eyeOffsetY = player.radius * -0.3;
-    const eyeRadiusX = player.radius * 0.15;
-    const eyeRadiusY = player.radius * 0.25;
+  // Eyes
+  const eyeOffsetX = player.radius * 0.4;
+  const eyeOffsetY = player.radius * -0.3;
+  const eyeRadiusX = player.radius * 0.15;
+  const eyeRadiusY = player.radius * 0.25;
 
-    ctx.fillStyle = "black";
-    ctx.beginPath();
-    ctx.ellipse(player.x - eyeOffsetX, player.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(player.x + eyeOffsetX, player.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
-    ctx.fill();
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.ellipse(player.x - eyeOffsetX, player.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(player.x + eyeOffsetX, player.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-    // Eye highlights
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.arc(player.x - eyeOffsetX + eyeRadiusX * 0.4, player.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(player.x + eyeOffsetX + eyeRadiusX * 0.4, player.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
-    ctx.fill();
+  // Eye highlights
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(player.x - eyeOffsetX + eyeRadiusX * 0.4, player.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(player.x + eyeOffsetX + eyeRadiusX * 0.4, player.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
+  ctx.fill();
 
-    // Smile
-    ctx.beginPath();
-    const smileRadius = player.radius * 0.6;
-    ctx.arc(player.x, player.y + player.radius * 0.2, smileRadius, 0.2 * Math.PI, 0.8 * Math.PI);
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-    ctx.stroke();
+  // Smile
+  ctx.beginPath();
+  const smileRadius = player.radius * 0.6;
+  ctx.arc(player.x, player.y + player.radius * 0.2, smileRadius, 0.2 * Math.PI, 0.8 * Math.PI);
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.stroke();
 
-    // Orbiting petals
-    const equipped = hotbar.filter(i => i);
-    if (equipped.length > 0) {
-      const angleStep = (2 * Math.PI) / equipped.length;
-      equipped.forEach((item, idx) => {
-        const angle = player.orbitAngle + idx * angleStep;
-        const x = player.x + orbitDist * Math.cos(angle);
-        const y = player.y + orbitDist * Math.sin(angle);
-        ctx.beginPath();
-        ctx.arc(x, y, 8, 0, Math.PI * 2);
-        ctx.fillStyle = item.color || "cyan";
-        ctx.fill();
-      });
-    }
+  // Orbiting petals
+  const equipped = hotbar.filter(i => i);
+  if (equipped.length > 0) {
+    const angleStep = (2 * Math.PI) / equipped.length;
+    equipped.forEach((item, idx) => {
+      const angle = player.orbitAngle + idx * angleStep;
+      const x = player.x + orbitDist * Math.cos(angle);
+      const y = player.y + orbitDist * Math.sin(angle);
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = item.color || "cyan";
+      ctx.fill();
+    });
   }
 
   // Items on ground
