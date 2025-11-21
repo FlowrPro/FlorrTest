@@ -8,12 +8,15 @@ const mapRadius = 250;
 const player = { x: 300, y: 300, radius: 10, speed: 3 };
 const keys = {};
 
-document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keydown", e => {
+  keys[e.key] = true;
+  if (e.key.toLowerCase() === "x") toggleInventory();
+});
 document.addEventListener("keyup", e => keys[e.key] = false);
 
 // Spawn test item
 const itemsOnMap = [
-  { name: "Petal", x: player.x + 40, y: player.y, radius: 8 }
+  { name: "Petal", color: "cyan", x: player.x + 40, y: player.y, radius: 8 }
 ];
 
 function update() {
@@ -38,7 +41,7 @@ function update() {
   itemsOnMap.forEach((item, idx) => {
     const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist < player.radius + item.radius) {
-      if (addItem({ name: item.name })) {
+      if (addItem({ name: item.name, color: item.color })) {
         itemsOnMap.splice(idx, 1);
       }
     }
@@ -61,11 +64,25 @@ function draw() {
   ctx.fillStyle = "#ff0";
   ctx.fill();
 
-  // Items
+  // Items on map
   itemsOnMap.forEach(item => {
     ctx.beginPath();
     ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0ff";
+    ctx.fillStyle = item.color;
+    ctx.fill();
+  });
+
+  // Hotbar petals around player
+  const equipped = hotbar.filter(i => i);
+  const angleStep = (2 * Math.PI) / equipped.length;
+  equipped.forEach((item, idx) => {
+    const angle = idx * angleStep;
+    const dist = player.radius + 25;
+    const x = player.x + dist * Math.cos(angle);
+    const y = player.y + dist * Math.sin(angle);
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = item.color || "cyan";
     ctx.fill();
   });
 }
@@ -82,6 +99,7 @@ renderHotbar();
 gameLoop();
 
 // Toggle inventory
-document.getElementById("invToggle").onclick = () => {
+function toggleInventory() {
   document.getElementById("inventory").classList.toggle("hidden");
-};
+}
+document.getElementById("invToggle").onclick = toggleInventory;
