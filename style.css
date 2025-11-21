@@ -4,6 +4,7 @@ body {
   background: #111;
 }
 
+/* Canvas fills the entire viewport */
 canvas {
   display: block;
   width: 100vw;
@@ -37,7 +38,7 @@ canvas {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: cyan; /* default petal color */
+  background: cyan;
 }
 
 /* Inventory panel */
@@ -52,7 +53,6 @@ canvas {
   padding: 10px;
 }
 
-/* Fix: ensure hidden overrides #inventory's display using higher specificity */
 #inventory.hidden {
   display: none;
 }
