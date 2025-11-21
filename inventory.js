@@ -13,6 +13,16 @@ function makeIcon(item) {
   const icon = document.createElement("div");
   icon.className = "icon";
   if (item?.color) icon.style.background = item.color;
+
+  // Tooltip with stats
+  if (item) {
+    const tooltip = document.createElement("div");
+    tooltip.className = "tooltip";
+    tooltip.innerText =
+      `${item.name}\nDamage: ${item.damage}\nHealth: ${item.health}\n${item.description}`;
+    icon.appendChild(tooltip);
+  }
+
   return icon;
 }
 
