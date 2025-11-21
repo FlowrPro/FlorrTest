@@ -93,16 +93,20 @@ function draw() {
     ctx.strokeStyle = "yellow";
     ctx.stroke();
 
-    // Orbiting petals
+    // Orbiting petals (world coords → camera offset)
     const equipped = hotbar.filter(i => i);
     if (equipped.length > 0) {
       const angleStep = (2 * Math.PI) / equipped.length;
       equipped.forEach((item, idx) => {
         const angle = player.orbitAngle + idx * angleStep;
-        const x = player.x + orbitDist * Math.cos(angle);
-        const y = player.y + orbitDist * Math.sin(angle);
+
+        // World coordinates
+        const petalX = player.x + orbitDist * Math.cos(angle);
+        const petalY = player.y + orbitDist * Math.sin(angle);
+
+        // Apply camera offset when drawing
         ctx.beginPath();
-        ctx.arc(x - cameraX, y - cameraY, 8, 0, Math.PI * 2);
+        ctx.arc(petalX - cameraX, petalY - cameraY, 8, 0, Math.PI * 2);
         ctx.fillStyle = item.color || "cyan";
         ctx.fill();
       });
