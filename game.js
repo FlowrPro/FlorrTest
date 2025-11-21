@@ -13,7 +13,7 @@ window.addEventListener("resize", resizeCanvas);
 const socket = io("https://florrtest-backend-1.onrender.com"); // replace with your backend URL
 setSocket(socket);
 
-let player = { id: null, x: 0, y: 0, radius: 28, hotbar: [], orbitAngle: 0 };
+let player = { id: null, x: 0, y: 0, radius: 20, hotbar: [], orbitAngle: 0 };
 let orbitSpeed = 0.02;
 let orbitDist = 56;
 let extendDist = 96;
