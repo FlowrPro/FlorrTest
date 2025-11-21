@@ -70,15 +70,6 @@ function draw() {
   // Clear the canvas completely
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Now draw background map
-  ctx.beginPath();
-  ctx.arc(world.width / 2 - cameraX, world.height / 2 - cameraY, world.mapRadius, 0, Math.PI * 2);
-  ctx.fillStyle = "#2ecc71";
-  ctx.fill();
-  ctx.strokeStyle = "#0f0";
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
   // Camera offset (centered on player)
   const cameraX = player.x - canvas.width / 2;
   const cameraY = player.y - canvas.height / 2;
