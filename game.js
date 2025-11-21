@@ -56,6 +56,14 @@ function update() {
   if (dx !== 0 || dy !== 0) socket.emit("move", { dx, dy });
 
   orbitDist = leftHeld ? extendDist : rightHeld ? retractDist : 56;
+
+  // --- NEW: check for item collisions ---
+  items.forEach(item => {
+    const dist = Math.hypot(player.x - item.x, player.y - item.y);
+    if (dist < player.radius + item.radius) {
+      socket.emit("pickup_request", { itemId: item.id });
+    }
+  });
 }
 
 function draw() {
