@@ -19,11 +19,12 @@ function makeIcon(item) {
     const tooltip = document.createElement("div");
     tooltip.className = "tooltip";
     tooltip.innerHTML = `
-      <div class="tooltip-title">${item.name}</div>
-      <div class="tooltip-stat">Damage: <span>${item.damage}</span></div>
-      <div class="tooltip-stat">Health: <span>${item.health}</span></div>
-      <div class="tooltip-desc">${item.description}</div>
-    `;
+  <div class="tooltip-title">${item.name}</div>
+  <div class="tooltip-stat">Damage: <span>${item.damage}</span></div>
+  <div class="tooltip-stat">Health: <span>${item.health}/${item.maxHealth}</span></div>
+  <div class="tooltip-stat">Reload: <span>${(item.reload/1000).toFixed(1)}s</span></div>
+  <div class="tooltip-desc">${item.description}</div>
+`;
     icon.appendChild(tooltip);
   }
 
