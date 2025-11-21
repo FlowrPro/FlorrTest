@@ -6,43 +6,47 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<!-- Homescreen overlay -->
-<div id="homescreen">
-  <h1 class="game-title">Flowers BETA</h1>
-  <div class="username-container">
-    <input type="text" id="username" placeholder="Enter your username">
-    <button id="play-btn">Play</button>
+  <!-- Homescreen overlay -->
+  <div id="homescreen">
+    <h1 class="game-title">Flowers BETA</h1>
+    <div class="username-container">
+      <input type="text" id="username" placeholder="Enter your username">
+      <button id="play-btn">Play</button>
+    </div>
   </div>
-</div>
 
-<!-- Settings button top-left (global, visible in homescreen and game) -->
-<button id="settings-btn">
-  <span class="gear-icon">
-    <span></span><span></span><span></span><span></span>
-  </span>
-</button>
+  <!-- Settings button top-left (global, visible in homescreen and game) -->
+  <button id="settings-btn">
+    <span class="gear-icon">
+      <span></span><span></span><span></span><span></span>
+    </span>
+  </button>
 
   <!-- Fullscreen canvas -->
   <canvas id="gameCanvas"></canvas>
 
- <!-- Settings panel (hidden initially) -->
-<div id="settings-panel" class="hidden">
-  <div class="settings-box">
-    <h2>Settings</h2>
-    <label>
-      <input type="checkbox" id="toggle-mouse"> Enable Mouse Movement
-    </label><br>
-    <button id="close-settings">Close</button>
+  <!-- Settings panel (hidden initially) -->
+  <div id="settings-panel" class="hidden">
+    <div class="settings-box">
+      <h2>Settings</h2>
+      <label>
+        <input type="checkbox" id="toggle-mouse"> Enable Mouse Movement
+      </label><br>
+      <button id="close-settings">Close</button>
+    </div>
   </div>
-</div>
 
   <!-- Hotbar bottom center -->
-  <div id="hotbar"></div>
+  <div id="hotbar">
+    <!-- Example slot with rarity applied -->
+    <!-- Slots will be filled dynamically in game.js -->
+    <!-- <div class="slot common"><div class="icon basic-petal"></div></div> -->
+  </div>
 
   <!-- Inventory toggle button styled like a slot with a basic petal -->
-<button id="invToggle" class="slot">
-  <div class="icon basic-petal"></div>
-</button>
+  <button id="invToggle" class="slot common">
+    <div class="icon basic-petal"></div>
+  </button>
 
   <!-- Full inventory (hidden initially) -->
   <div id="inventory" class="hidden"></div>
