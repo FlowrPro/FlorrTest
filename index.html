@@ -2,16 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Circle Map + Inventory</title>
+  <title>Florr-style Inventory</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <canvas id="gameCanvas" width="600" height="600"></canvas>
-  <div id="inventory"></div>
 
-  <!-- Scripts -->
-  <script src="inventory.js"></script>
-  <script src="game.js"></script>
+  <!-- Quick slots bottom center -->
+  <div id="slots"></div>
+
+  <!-- Inventory toggle button -->
+  <button id="invToggle">Inventory</button>
+
+  <!-- Full inventory (hidden initially) -->
+  <div id="inventory" class="hidden"></div>
+
   <script type="module" src="game.js"></script>
 </body>
 </html>
