@@ -76,6 +76,14 @@ function drawPlayer(p) {
   ctx.strokeStyle = "yellow";
   ctx.stroke();
 
+  // --- NEW: Username above player ---
+  if (p.username) {
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(p.username, p.x, p.y - p.radius - 10);
+  }
+
   // Eyes
   const eyeOffsetX = p.radius * 0.4;
   const eyeOffsetY = p.radius * -0.3;
@@ -193,6 +201,7 @@ socket.on("player_update", p => {
     player.y = p.y;
     player.orbitAngle = p.orbitAngle;
     hotbar.splice(0, hotbar.length, ...p.hotbar);
+    player.username = p.username; // NEW
   } else {
     otherPlayers[p.id] = p;
   }
@@ -205,6 +214,7 @@ socket.on("player_join", p => {
 socket.on("player_leave", ({ id }) => {
   delete otherPlayers[id];
 });
+
 // --- Homescreen Play Button ---
 const playBtn = document.getElementById("play-btn");
 if (playBtn) {
@@ -219,11 +229,9 @@ if (playBtn) {
     const homescreen = document.getElementById("homescreen");
     homescreen.classList.add("fade-out");
 
-    // After fade completes, hide homescreen
     setTimeout(() => {
       homescreen.style.display = "none";
-      // Optionally send username to backend
       socket.emit("set_username", { username });
-    }, 800); // matches CSS transition duration
+    }, 800);
   });
 }
