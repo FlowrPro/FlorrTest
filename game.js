@@ -11,17 +11,13 @@ let mapRadius = 0;
 const player = { x: 0, y: 0, radius: 12, speed: 3 };
 const keys = {};
 
-// Resize-aware canvas and map
 function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   centerX = canvas.width / 2;
   centerY = canvas.height / 2;
-
-  // Big circle: fit to viewport with margin
   mapRadius = Math.min(canvas.width, canvas.height) / 2 - 60;
 
-  // If player hasn't been initialized, place at center
   if (player.x === 0 && player.y === 0) {
     player.x = centerX;
     player.y = centerY;
@@ -36,14 +32,13 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("keyup", e => (keys[e.key] = false));
 
-// Spawn test item
+// --- FIX: spawn test petal on ground, not equipped ---
 const itemsOnMap = [
-  { name: "Petal", color: "cyan", x: () => player.x + 40, y: () => player.y, radius: 8 }
+  { name: "Petal", color: "cyan", x: centerX + 60, y: centerY, radius: 8 }
 ];
 
 function update() {
-  let dx = 0,
-    dy = 0;
+  let dx = 0, dy = 0;
   if (keys["w"]) dy -= player.speed;
   if (keys["s"]) dy += player.speed;
   if (keys["a"]) dx -= player.speed;
@@ -60,32 +55,28 @@ function update() {
     player.y = centerY + (mapRadius - player.radius) * Math.sin(angle);
   }
 
-  // Pickup check
-  // Items follow initial offset from player; evaluate positions lazily
+  // --- FIX: pickup sends item to inventory only ---
   itemsOnMap.forEach((item, idx) => {
-    const ix = typeof item.x === "function" ? item.x() : item.x;
-    const iy = typeof item.y === "function" ? item.y() : item.y;
-    const dist = Math.hypot(player.x - ix, player.y - iy);
+    const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist < player.radius + item.radius) {
       if (addItem({ name: item.name, color: item.color })) {
-        itemsOnMap.splice(idx, 1);
+        itemsOnMap.splice(idx, 1); // remove from ground
       }
     }
   });
 }
 
 function draw() {
-  // Outside area: faded green
+  // Outside faded green
   ctx.fillStyle = "rgba(0, 128, 0, 0.25)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Map circle: solid green floor
+  // Map circle solid green
   ctx.beginPath();
   ctx.arc(centerX, centerY, mapRadius, 0, Math.PI * 2);
-  ctx.fillStyle = "#2ecc71"; // solid green inside
+  ctx.fillStyle = "#2ecc71";
   ctx.fill();
 
-  // Boundary stroke
   ctx.beginPath();
   ctx.arc(centerX, centerY, mapRadius, 0, Math.PI * 2);
   ctx.strokeStyle = "#0f0";
@@ -98,17 +89,15 @@ function draw() {
   ctx.fillStyle = "#ff0";
   ctx.fill();
 
-  // Items on map
+  // Items on ground
   itemsOnMap.forEach(item => {
-    const ix = typeof item.x === "function" ? item.x() : item.x;
-    const iy = typeof item.y === "function" ? item.y() : item.y;
     ctx.beginPath();
-    ctx.arc(ix, iy, item.radius, 0, Math.PI * 2);
+    ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
     ctx.fillStyle = item.color;
     ctx.fill();
   });
 
-  // Hotbar petals around player
+  // Equipped petals orbit player
   const equipped = hotbar.filter(i => i);
   if (equipped.length > 0) {
     const angleStep = (2 * Math.PI) / equipped.length;
@@ -131,14 +120,12 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Init UI and loop
+// Init
 renderInventory();
 renderHotbar();
 gameLoop();
 
-// Toggle inventory (button and keybind)
 function toggleInventory() {
-  const inv = document.getElementById("inventory");
-  inv.classList.toggle("hidden");
+  document.getElementById("inventory").classList.toggle("hidden");
 }
 document.getElementById("invToggle").onclick = toggleInventory;
