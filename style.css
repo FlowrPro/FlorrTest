@@ -213,22 +213,4 @@ canvas {
 .blurred {
   filter: blur(4px);
 }
-.exit-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 40px;
-  height: 40px;
-  background: #c00;       /* red background */
-  color: white;           /* white X */
-  font-size: 24px;
-  font-weight: bold;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: none;          /* hidden until spawn */
-}
 
-.exit-btn:hover {
-  background: #a00;
-}
