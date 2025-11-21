@@ -292,3 +292,8 @@ canvas {
   text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.7);
 }
+#homescreen #settings-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
