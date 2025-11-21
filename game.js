@@ -205,3 +205,25 @@ socket.on("player_join", p => {
 socket.on("player_leave", ({ id }) => {
   delete otherPlayers[id];
 });
+// --- Homescreen Play Button ---
+const playBtn = document.getElementById("play-btn");
+if (playBtn) {
+  playBtn.addEventListener("click", () => {
+    const usernameInput = document.getElementById("username");
+    const username = usernameInput.value.trim();
+    if (!username) {
+      alert("Please enter a username!");
+      return;
+    }
+
+    const homescreen = document.getElementById("homescreen");
+    homescreen.classList.add("fade-out");
+
+    // After fade completes, hide homescreen
+    setTimeout(() => {
+      homescreen.style.display = "none";
+      // Optionally send username to backend
+      socket.emit("set_username", { username });
+    }, 800); // matches CSS transition duration
+  });
+}
