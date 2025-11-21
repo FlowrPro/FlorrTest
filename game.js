@@ -66,6 +66,63 @@ function update() {
   });
 }
 
+function drawPlayer(p) {
+  // Body
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+  ctx.fillStyle = "orange";
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "yellow";
+  ctx.stroke();
+
+  // Eyes
+  const eyeOffsetX = p.radius * 0.4;
+  const eyeOffsetY = p.radius * -0.3;
+  const eyeRadiusX = p.radius * 0.15;
+  const eyeRadiusY = p.radius * 0.25;
+
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.ellipse(p.x - eyeOffsetX, p.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(p.x + eyeOffsetX, p.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eye highlights
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(p.x - eyeOffsetX + eyeRadiusX * 0.4, p.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(p.x + eyeOffsetX + eyeRadiusX * 0.4, p.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Smile
+  ctx.beginPath();
+  const smileRadius = p.radius * 0.6;
+  ctx.arc(p.x, p.y + p.radius * 0.2, smileRadius, 0.2 * Math.PI, 0.8 * Math.PI);
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Orbiting petals
+  const equipped = p.hotbar.filter(i => i);
+  if (equipped.length > 0) {
+    const angleStep = (2 * Math.PI) / equipped.length;
+    equipped.forEach((item, idx) => {
+      const angle = p.orbitAngle + idx * angleStep;
+      const x = p.x + orbitDist * Math.cos(angle);
+      const y = p.y + orbitDist * Math.sin(angle);
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = item.color || "cyan";
+      ctx.fill();
+    });
+  }
+}
+
 function draw() {
   ctx.fillStyle = "rgba(0,128,0,0.25)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -78,62 +135,15 @@ function draw() {
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Player face
+  // Draw self
   if (player.id) {
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "orange";
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "yellow";
-    ctx.stroke();
-
-    // Eyes
-    const eyeOffsetX = player.radius * 0.4;
-    const eyeOffsetY = player.radius * -0.3;
-    const eyeRadiusX = player.radius * 0.15;
-    const eyeRadiusY = player.radius * 0.25;
-
-    ctx.fillStyle = "black";
-    ctx.beginPath();
-    ctx.ellipse(player.x - eyeOffsetX, player.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(player.x + eyeOffsetX, player.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Eye highlights
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.arc(player.x - eyeOffsetX + eyeRadiusX * 0.4, player.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(player.x + eyeOffsetX + eyeRadiusX * 0.4, player.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Smile
-    ctx.beginPath();
-    const smileRadius = player.radius * 0.6;
-    ctx.arc(player.x, player.y + player.radius * 0.2, smileRadius, 0.2 * Math.PI, 0.8 * Math.PI);
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Orbiting petals
-    const equipped = hotbar.filter(i => i);
-    if (equipped.length > 0) {
-      const angleStep = (2 * Math.PI) / equipped.length;
-      equipped.forEach((item, idx) => {
-        const angle = player.orbitAngle + idx * angleStep;
-        const x = player.x + orbitDist * Math.cos(angle);
-        const y = player.y + orbitDist * Math.sin(angle);
-        ctx.beginPath();
-        ctx.arc(x, y, 8, 0, Math.PI * 2);
-        ctx.fillStyle = item.color || "cyan";
-        ctx.fill();
-      });
-    }
+    drawPlayer(player);
   }
+
+  // Draw other players
+  Object.values(otherPlayers).forEach(p => {
+    drawPlayer(p);
+  });
 
   // Items on ground
   items.forEach(item => {
@@ -141,16 +151,6 @@ function draw() {
     ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
     ctx.fillStyle = item.color;
     ctx.fill();
-  });
-
-  // Other players
-  Object.values(otherPlayers).forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "blue";
-    ctx.fill();
-    ctx.strokeStyle = "white";
-    ctx.stroke();
   });
 }
 
