@@ -59,56 +59,31 @@ function update() {
 }
 
 function draw() {
+  // Clear background
   ctx.fillStyle = "rgba(0,128,0,0.25)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Camera offset (centered on player)
+  const cameraX = player.x - canvas.width / 2;
+  const cameraY = player.y - canvas.height / 2;
+
+  // Draw world map (relative to camera)
   ctx.beginPath();
-  ctx.arc(world.centerX, world.centerY, world.mapRadius, 0, Math.PI * 2);
+  ctx.arc(world.width / 2 - cameraX, world.height / 2 - cameraY, world.mapRadius, 0, Math.PI * 2);
   ctx.fillStyle = "#2ecc71";
   ctx.fill();
   ctx.strokeStyle = "#0f0";
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Player face
+  // Draw player
   if (player.id) {
     ctx.beginPath();
-    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+    ctx.arc(player.x - cameraX, player.y - cameraY, player.radius, 0, Math.PI * 2);
     ctx.fillStyle = "orange";
     ctx.fill();
     ctx.lineWidth = 3;
     ctx.strokeStyle = "yellow";
-    ctx.stroke();
-
-    // Eyes
-    const eyeOffsetX = player.radius * 0.4;
-    const eyeOffsetY = player.radius * -0.3;
-    const eyeRadiusX = player.radius * 0.15;
-    const eyeRadiusY = player.radius * 0.25;
-
-    ctx.fillStyle = "black";
-    ctx.beginPath();
-    ctx.ellipse(player.x - eyeOffsetX, player.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(player.x + eyeOffsetX, player.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Eye highlights
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.arc(player.x - eyeOffsetX + eyeRadiusX * 0.4, player.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(player.x + eyeOffsetX + eyeRadiusX * 0.4, player.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Smile
-    ctx.beginPath();
-    const smileRadius = player.radius * 0.6;
-    ctx.arc(player.x, player.y + player.radius * 0.2, smileRadius, 0.2 * Math.PI, 0.8 * Math.PI);
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
     ctx.stroke();
 
     // Orbiting petals
@@ -120,7 +95,7 @@ function draw() {
         const x = player.x + orbitDist * Math.cos(angle);
         const y = player.y + orbitDist * Math.sin(angle);
         ctx.beginPath();
-        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.arc(x - cameraX, y - cameraY, 8, 0, Math.PI * 2);
         ctx.fillStyle = item.color || "cyan";
         ctx.fill();
       });
@@ -130,7 +105,7 @@ function draw() {
   // Items on ground
   items.forEach(item => {
     ctx.beginPath();
-    ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
+    ctx.arc(item.x - cameraX, item.y - cameraY, item.radius, 0, Math.PI * 2);
     ctx.fillStyle = item.color;
     ctx.fill();
   });
@@ -138,7 +113,7 @@ function draw() {
   // Other players
   Object.values(otherPlayers).forEach(p => {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.arc(p.x - cameraX, p.y - cameraY, p.radius, 0, Math.PI * 2);
     ctx.fillStyle = "blue";
     ctx.fill();
     ctx.strokeStyle = "white";
