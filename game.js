@@ -20,8 +20,8 @@ let player = {
   radius: 20, 
   hotbar: [], 
   orbitAngle: 0,
-  orbitDist: 56,       // NEW: per-player orbit distance
-  leftHeld: false,     // NEW: per-player input state
+  orbitDist: 56,       // per-player orbit distance
+  leftHeld: false,     // per-player input state
   rightHeld: false,
   username: null
 };
@@ -31,6 +31,14 @@ let retractDist = 41;
 let world = { centerX: 800, centerY: 450, mapRadius: 390 };
 let items = [];
 let otherPlayers = {};
+
+// --- Camera state ---
+let cameraX = 0;
+let cameraY = 0;
+function updateCamera() {
+  cameraX = player.x - canvas.width / 2;
+  cameraY = player.y - canvas.height / 2;
+}
 
 canvas.addEventListener("mousedown", e => {
   if (e.button === 0) player.leftHeld = true;
@@ -81,6 +89,8 @@ function update() {
       socket.emit("pickup_request", { itemId: item.id });
     }
   });
+
+  updateCamera(); // NEW: update camera each frame
 }
 
 function drawPlayer(p) {
@@ -149,8 +159,14 @@ function drawPlayer(p) {
 }
 
 function draw() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Apply camera offset
+  ctx.translate(-cameraX, -cameraY);
+
   ctx.fillStyle = "rgba(0,128,0,0.25)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, world.width || canvas.width, world.height || canvas.height);
 
   ctx.beginPath();
   ctx.arc(world.centerX, world.centerY, world.mapRadius, 0, Math.PI * 2);
@@ -215,7 +231,7 @@ socket.on("player_update", p => {
     player.y = p.y;
     player.orbitAngle = p.orbitAngle;
     player.orbitDist = p.orbitDist;
-    player.hotbar = [...p.hotbar];   // <-- FIX: update player.hotbar
+    player.hotbar = [...p.hotbar];
     hotbar.splice(0, hotbar.length, ...p.hotbar);
     player.username = p.username;
   } else {
@@ -248,6 +264,6 @@ if (playBtn) {
     setTimeout(() => {
       homescreen.style.display = "none";
       socket.emit("set_username", { username });
-    }, 800);
+    }, 800); // matches CSS transition duration
   });
 }
