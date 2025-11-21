@@ -5,7 +5,9 @@ body {
 }
 
 canvas {
-  display: block; /* Size set in JS for crisp pixels */
+  display: block;
+  width: 100vw;
+  height: 100vh;
 }
 
 /* Hotbar bottom center */
