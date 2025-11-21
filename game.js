@@ -197,14 +197,22 @@ if (p.health > 0) {
     const angleStep = (2 * Math.PI) / equipped.length;
     const now = Date.now();
     equipped.forEach((item, idx) => {
-      // Skip petals that are currently reloading
       if (item.reloadUntil && now < item.reloadUntil) return;
 
       const angle = p.orbitAngle + idx * angleStep;
-      const x = p.x + (p.orbitDist || 56) * Math.cos(angle);
-      const y = p.y + (p.orbitDist || 56) * Math.sin(angle);
+      const baseX = p.x + (p.orbitDist || 56) * Math.cos(angle);
+      const baseY = p.y + (p.orbitDist || 56) * Math.sin(angle);
+
+      // Bounce animation: scale radius for 300ms after respawn
+      let radius = 8;
+      if (item.reloadUntil && now < item.reloadUntil + 300) {
+        const t = (now - item.reloadUntil) / 300; // 0 → 1
+        const bounce = Math.sin(t * Math.PI);     // smooth in/out
+        radius = 8 + bounce * 4;                  // grow/shrink
+      }
+
       ctx.beginPath();
-      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.arc(baseX, baseY, radius, 0, Math.PI * 2);
       ctx.fillStyle = item.color || "cyan";
       ctx.fill();
     });
