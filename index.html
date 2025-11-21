@@ -27,6 +27,14 @@
   <!-- Full inventory (hidden initially) -->
   <div id="inventory" class="hidden"></div>
 
+  <!-- Death screen overlay (hidden initially) -->
+  <div id="death-screen" class="hidden">
+    <div class="death-box">
+      <h2>You have died</h2>
+      <button id="respawn-btn">Respawn</button>
+    </div>
+  </div>
+
   <!-- Load Socket.IO client first -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <!-- Then load your game code -->
