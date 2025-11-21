@@ -33,6 +33,13 @@ canvas {
   font-size: 12px;
 }
 
+.slot .icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: cyan; /* petal color */
+}
+
 /* Inventory panel */
 #inventory {
   position: absolute;
