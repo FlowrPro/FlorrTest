@@ -2,6 +2,13 @@ import { inventory, hotbar, renderInventory, renderHotbar, setSocket } from "./i
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+// --- Fullscreen canvas setup ---
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas(); // initial call
+window.addEventListener("resize", resizeCanvas);
 
 const socket = io("https://florrtest-backend-1.onrender.com"); // replace with your backend URL
 setSocket(socket);
