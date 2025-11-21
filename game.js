@@ -177,14 +177,19 @@ function drawPlayer(p) {
     ctx.stroke();
   }
 
-  // Smile (always draw)
-  ctx.beginPath();
-  const smileRadius = p.radius * 0.6;
+  // Smile or frown
+ctx.beginPath();
+const smileRadius = p.radius * 0.6;
+if (p.health > 0) {
+  // Normal smile
   ctx.arc(p.x, p.y + p.radius * 0.2, smileRadius, 0.2 * Math.PI, 0.8 * Math.PI);
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
+} else {
+  // Frown when dead
+  ctx.arc(p.x, p.y + p.radius * 0.5, smileRadius, 1.2 * Math.PI, 1.8 * Math.PI);
+}
+ctx.strokeStyle = "black";
+ctx.lineWidth = 2;
+ctx.stroke();
   // Orbiting petals: only if alive
   if (p.health > 0) {
     const equipped = p.hotbar.filter(i => i);
