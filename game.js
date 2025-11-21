@@ -7,7 +7,7 @@ let centerX = 0;
 let centerY = 0;
 let mapRadius = 0;
 
-const player = { x: 0, y: 0, radius: 28, speed: 3 };
+const player = { x: 0, y: 0, radius: 20, speed: 3 };
 const keys = {};
 let orbitAngle = 0;
 let orbitSpeed = 0.10; // tweak this for faster/slower rotation
