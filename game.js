@@ -110,51 +110,74 @@ function drawPlayer(p) {
     ctx.textAlign = "center";
     ctx.fillText(p.username, p.x, p.y - p.radius - 10);
   }
-    // Health bar above player
+
+  // Health bar above player
   if (typeof p.health === "number") {
     const barWidth = 40;
     const barHeight = 6;
     const x = p.x - barWidth / 2;
-    const y = p.y + p.radius + 10; // BELOW player
+    const y = p.y + p.radius + 10;
 
-    // Background
     ctx.fillStyle = "black";
     ctx.fillRect(x, y, barWidth, barHeight);
 
-    // Current health
     const healthPercent = Math.max(0, p.health) / 100;
     ctx.fillStyle = "lime";
     ctx.fillRect(x, y, barWidth * healthPercent, barHeight);
 
-    // Border
     ctx.strokeStyle = "white";
     ctx.lineWidth = 1;
     ctx.strokeRect(x, y, barWidth, barHeight);
   }
-  // Eyes
-  const eyeOffsetX = p.radius * 0.4;
-  const eyeOffsetY = p.radius * -0.3;
-  const eyeRadiusX = p.radius * 0.15;
-  const eyeRadiusY = p.radius * 0.25;
 
-  ctx.fillStyle = "black";
-  ctx.beginPath();
-  ctx.ellipse(p.x - eyeOffsetX, p.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(p.x + eyeOffsetX, p.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
-  ctx.fill();
+  // Eyes: normal if alive, X's if dead
+  if (p.health > 0) {
+    const eyeOffsetX = p.radius * 0.4;
+    const eyeOffsetY = p.radius * -0.3;
+    const eyeRadiusX = p.radius * 0.15;
+    const eyeRadiusY = p.radius * 0.25;
 
-  // Eye highlights
-  ctx.fillStyle = "white";
-  ctx.beginPath();
-  ctx.arc(p.x - eyeOffsetX + eyeRadiusX * 0.4, p.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(p.x + eyeOffsetX + eyeRadiusX * 0.4, p.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
-  ctx.fill();
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.ellipse(p.x - eyeOffsetX, p.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(p.x + eyeOffsetX, p.y + eyeOffsetY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-  // Smile
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(p.x - eyeOffsetX + eyeRadiusX * 0.4, p.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(p.x + eyeOffsetX + eyeRadiusX * 0.4, p.y + eyeOffsetY - eyeRadiusY * 0.4, eyeRadiusX * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    // Draw X eyes when dead
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 3;
+    const eyeOffsetX = p.radius * 0.4;
+    const eyeOffsetY = p.radius * -0.3;
+    const eyeSize = p.radius * 0.3;
+
+    // Left X
+    ctx.beginPath();
+    ctx.moveTo(p.x - eyeOffsetX - eyeSize/2, p.y + eyeOffsetY - eyeSize/2);
+    ctx.lineTo(p.x - eyeOffsetX + eyeSize/2, p.y + eyeOffsetY + eyeSize/2);
+    ctx.moveTo(p.x - eyeOffsetX + eyeSize/2, p.y + eyeOffsetY - eyeSize/2);
+    ctx.lineTo(p.x - eyeOffsetX - eyeSize/2, p.y + eyeOffsetY + eyeSize/2);
+    ctx.stroke();
+
+    // Right X
+    ctx.beginPath();
+    ctx.moveTo(p.x + eyeOffsetX - eyeSize/2, p.y + eyeOffsetY - eyeSize/2);
+    ctx.lineTo(p.x + eyeOffsetX + eyeSize/2, p.y + eyeOffsetY + eyeSize/2);
+    ctx.moveTo(p.x + eyeOffsetX + eyeSize/2, p.y + eyeOffsetY - eyeSize/2);
+    ctx.lineTo(p.x + eyeOffsetX - eyeSize/2, p.y + eyeOffsetY + eyeSize/2);
+    ctx.stroke();
+  }
+
+  // Smile (always draw)
   ctx.beginPath();
   const smileRadius = p.radius * 0.6;
   ctx.arc(p.x, p.y + p.radius * 0.2, smileRadius, 0.2 * Math.PI, 0.8 * Math.PI);
@@ -162,19 +185,21 @@ function drawPlayer(p) {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Orbiting petals
-  const equipped = p.hotbar.filter(i => i);
-  if (equipped.length > 0) {
-    const angleStep = (2 * Math.PI) / equipped.length;
-    equipped.forEach((item, idx) => {
-      const angle = p.orbitAngle + idx * angleStep;
-      const x = p.x + (p.orbitDist || 56) * Math.cos(angle);
-      const y = p.y + (p.orbitDist || 56) * Math.sin(angle);
-      ctx.beginPath();
-      ctx.arc(x, y, 8, 0, Math.PI * 2);
-      ctx.fillStyle = item.color || "cyan";
-      ctx.fill();
-    });
+  // Orbiting petals: only if alive
+  if (p.health > 0) {
+    const equipped = p.hotbar.filter(i => i);
+    if (equipped.length > 0) {
+      const angleStep = (2 * Math.PI) / equipped.length;
+      equipped.forEach((item, idx) => {
+        const angle = p.orbitAngle + idx * angleStep;
+        const x = p.x + (p.orbitDist || 56) * Math.cos(angle);
+        const y = p.y + (p.orbitDist || 56) * Math.sin(angle);
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = item.color || "cyan";
+        ctx.fill();
+      });
+    }
   }
 }
 
