@@ -5,12 +5,19 @@ export const hotbar = new Array(10).fill(null);    // hotbar slots
 const invEl = document.getElementById("inventory");
 const hotbarEl = document.getElementById("hotbar");
 
+function makeIcon(item) {
+  const icon = document.createElement("div");
+  icon.className = "icon";
+  if (item?.color) icon.style.background = item.color;
+  return icon;
+}
+
 export function renderInventory() {
   invEl.innerHTML = "";
   inventory.forEach((item, i) => {
     const slot = document.createElement("div");
     slot.className = "slot";
-    slot.textContent = item ? item.name : "";
+    if (item) slot.appendChild(makeIcon(item));
     slot.draggable = !!item;
     slot.dataset.index = i;
     slot.dataset.type = "inventory";
@@ -27,7 +34,7 @@ export function renderHotbar() {
   hotbar.forEach((item, i) => {
     const slot = document.createElement("div");
     slot.className = "slot";
-    slot.textContent = item ? item.name : "";
+    if (item) slot.appendChild(makeIcon(item));
     slot.dataset.index = i;
     slot.dataset.type = "hotbar";
     slot.ondragover = e => e.preventDefault();
