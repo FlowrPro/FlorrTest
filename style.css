@@ -81,11 +81,11 @@ canvas {
   font-size: 12px;
 }
 
+/* Generic icon container (no forced color) */
 .slot .icon {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: cyan;
 }
 
 /* Inventory panel */
@@ -103,7 +103,6 @@ canvas {
 #inventory.hidden {
   display: none;
 }
-
 
 /* Inventory toggle styled like a slot */
 #invToggle.slot {
@@ -130,7 +129,8 @@ canvas {
   background: white; /* basic petal color */
   box-shadow: 0 0 6px rgba(255,255,255,0.8);
 }
-/* Homescreen overlay */
+
+/* Homescreen overlay with fade */
 #homescreen {
   position: absolute;
   top: 0;
@@ -151,6 +151,7 @@ canvas {
   opacity: 0;
   pointer-events: none; /* prevent clicks during fade */
 }
+
 .slot {
   position: relative;
 }
@@ -195,6 +196,7 @@ canvas {
   font-style: italic;
   color: #ccc;
 }
+
 #death-screen {
   position: fixed;
   top: 0; left: 0;
@@ -231,6 +233,7 @@ canvas {
 .blurred {
   filter: blur(4px);
 }
+
 /* Settings button top-left */
 #settings-btn {
   position: absolute;
@@ -309,9 +312,4 @@ canvas {
   border-radius: 8px;
   text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.7);
-}
-#homescreen #settings-btn {
-  position: absolute;
-  top: 10px;
-  left: 10px;
 }
