@@ -1,5 +1,5 @@
 // game.js
-import { inventory, slots, renderInventory, renderSlots, addItem, enableDrag } from "./inventory.js";
+import { inventory, hotbar, renderInventory, renderHotbar, addItem } from "./inventory.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -78,12 +78,10 @@ function gameLoop() {
 
 // Init
 renderInventory();
-renderSlots();
-enableDrag();
+renderHotbar();
 gameLoop();
 
 // Toggle inventory
 document.getElementById("invToggle").onclick = () => {
   document.getElementById("inventory").classList.toggle("hidden");
-  enableDrag();
 };
