@@ -58,6 +58,7 @@ document.getElementById("invToggle").onclick = toggleInventory;
 function toggleInventory() {
   document.getElementById("inventory").classList.toggle("hidden");
 }
+
 // --- Settings toggle ---
 const settingsBtn = document.getElementById("settings-btn");
 const settingsPanel = document.getElementById("settings-panel");
@@ -73,6 +74,24 @@ if (closeSettings) {
     settingsPanel.classList.remove("show");
   });
 }
+
+// --- Mouse movement toggle ---
+let mouseMovementEnabled = false;
+
+const toggleMouse = document.getElementById("toggle-mouse");
+if (toggleMouse) {
+  toggleMouse.addEventListener("change", (e) => {
+    mouseMovementEnabled = e.target.checked;
+  });
+}
+
+// Track mouse position
+let mouseX = 0;
+let mouseY = 0;
+canvas.addEventListener("mousemove", (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
 const keys = {};
 document.addEventListener("keydown", e => (keys[e.key] = true));
 document.addEventListener("keyup", e => (keys[e.key] = false));
@@ -82,12 +101,26 @@ function update() {
   if (!player || !player.id) return;
 
   let dx = 0, dy = 0;
+
+if (mouseMovementEnabled) {
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const diffX = mouseX - centerX;
+  const diffY = mouseY - centerY;
+  const dist = Math.hypot(diffX, diffY);
+
+  if (dist > 20) { // small deadzone
+    dx = diffX / dist;
+    dy = diffY / dist;
+  }
+} else {
   if (keys["w"]) dy -= 1;
   if (keys["s"]) dy += 1;
   if (keys["a"]) dx -= 1;
   if (keys["d"]) dx += 1;
-  if (dx !== 0 || dy !== 0) socket.emit("move", { dx, dy });
+}
 
+if (dx !== 0 || dy !== 0) socket.emit("move", { dx, dy });
   // Orbit distance controlled per player
   if (player.leftHeld) {
     player.orbitDist = extendDist;
