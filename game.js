@@ -10,8 +10,14 @@ let mapRadius = 0;
 
 const player = { x: 0, y: 0, radius: 12, speed: 3 };
 const keys = {};
-let orbitAngle = 0;           // base angle for rotation
-let orbitSpeed = 0.02;        // tweak this for faster/slower rotation
+let orbitAngle = 0;
+let orbitSpeed = 0.02; // tweakable rotation speed
+
+// Orbit distance modifiers
+let baseOrbitDist = player.radius + 28;
+let orbitDist = baseOrbitDist;
+let extendDist = baseOrbitDist + 40; // when left click held
+let retractDist = baseOrbitDist - 15; // when right click held
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -34,9 +40,24 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("keyup", e => (keys[e.key] = false));
 
-// Spawn test item
+// Mouse controls
+let leftHeld = false;
+let rightHeld = false;
+canvas.addEventListener("mousedown", e => {
+  if (e.button === 0) leftHeld = true;
+  if (e.button === 2) rightHeld = true;
+});
+canvas.addEventListener("mouseup", e => {
+  if (e.button === 0) leftHeld = false;
+  if (e.button === 2) rightHeld = false;
+});
+// Prevent context menu on right click
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+// --- Spawn test petals on ground ---
 const itemsOnMap = [
-  { name: "Petal", color: "cyan", x: centerX + 60, y: centerY, radius: 8 }
+  { name: "Petal", color: "cyan", x: centerX + 60, y: centerY, radius: 8 },
+  { name: "Petal", color: "red", x: centerX - 80, y: centerY + 40, radius: 8 }
 ];
 
 function update() {
@@ -69,6 +90,15 @@ function update() {
 
   // Orbit angle update
   orbitAngle += orbitSpeed;
+
+  // Orbit distance control
+  if (leftHeld) {
+    orbitDist = extendDist;
+  } else if (rightHeld) {
+    orbitDist = retractDist;
+  } else {
+    orbitDist = baseOrbitDist;
+  }
 }
 
 function draw() {
@@ -106,7 +136,6 @@ function draw() {
   const equipped = hotbar.filter(i => i);
   if (equipped.length > 0) {
     const angleStep = (2 * Math.PI) / equipped.length;
-    const orbitDist = player.radius + 28;
     equipped.forEach((item, idx) => {
       const angle = orbitAngle + idx * angleStep;
       const x = player.x + orbitDist * Math.cos(angle);
