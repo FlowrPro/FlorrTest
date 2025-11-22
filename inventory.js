@@ -1,4 +1,4 @@
-export const inventory = []; // start empty, push items as needed
+export const inventory = []; // start empty, grows as items are added
 export const hotbar = new Array(10).fill(null);
 
 const invEl = document.getElementById("inventory");
