@@ -1,4 +1,5 @@
-export const inventory = []; // start empty, grows as items are added
+// Dynamic inventory (grows as items are added)
+export const inventory = []; 
 export const hotbar = new Array(10).fill(null);
 
 const invEl = document.getElementById("inventory");
@@ -27,33 +28,34 @@ function makeIcon(item) {
     const tooltip = document.createElement("div");
     tooltip.className = "tooltip";
     tooltip.innerHTML = `
-  <div class="tooltip-title">${item.name}</div>
-  <div class="tooltip-stat">Damage: <span>${item.damage}</span></div>
-  <div class="tooltip-stat">Health: <span>${item.health}/${item.maxHealth}</span></div>
-  <div class="tooltip-stat">Reload: <span>${(item.reload/1000).toFixed(1)}s</span></div>
-  <div class="tooltip-stat">Rarity: <span>${item.rarity || "common"}</span></div>
-  <div class="tooltip-desc">${item.description}</div>
-`;
+      <div class="tooltip-title">${item.name}</div>
+      <div class="tooltip-stat">Damage: <span>${item.damage}</span></div>
+      <div class="tooltip-stat">Health: <span>${item.health}/${item.maxHealth}</span></div>
+      <div class="tooltip-stat">Reload: <span>${(item.reload/1000).toFixed(1)}s</span></div>
+      <div class="tooltip-stat">Rarity: <span>${item.rarity || "common"}</span></div>
+      <div class="tooltip-desc">${item.description}</div>
+    `;
     icon.appendChild(tooltip);
   }
 
   return icon;
 }
 
+// Render inventory dynamically (no fixed slots)
 export function renderInventory() {
   invEl.innerHTML = "";
   inventory.forEach((item, i) => {
+    if (!item) return; // skip empty entries
+
     const slot = document.createElement("div");
-    slot.className = "inventory-item"; // use new CSS class
+    slot.className = "inventory-item"; // use CSS grid style
     slot.dataset.index = i;
     slot.dataset.type = "inventory";
 
-    if (item) {
-      slot.appendChild(makeIcon(item));
-      setSlotRarity(slot, item.rarity);
-    }
+    slot.appendChild(makeIcon(item));
+    setSlotRarity(slot, item.rarity);
 
-    slot.draggable = !!item;
+    slot.draggable = true;
     slot.ondragstart = e => {
       e.dataTransfer.setData("index", i);
       e.dataTransfer.setData("type", "inventory");
@@ -67,6 +69,7 @@ export function renderInventory() {
   });
 }
 
+// Render hotbar (fixed 10 slots)
 export function renderHotbar() {
   hotbarEl.innerHTML = "";
   hotbar.forEach((item, i) => {
@@ -86,7 +89,6 @@ export function renderHotbar() {
     slot.ondragstart = e => {
       e.dataTransfer.setData("index", i);
       e.dataTransfer.setData("type", "hotbar");
-      // Prevent ghost image
       const img = new Image();
       img.src =
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAn0B9Z0QjJkAAAAASUVORK5CYII=";
