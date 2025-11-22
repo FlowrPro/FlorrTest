@@ -276,7 +276,7 @@ if (p.health > 0) {
     });
   }
 }
-
+}
 function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
   ctx.clearRect(0, 0, canvas.width, canvas.height);
