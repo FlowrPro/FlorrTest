@@ -25,8 +25,6 @@ chatInput.addEventListener("keydown", e => {
   }
 });
 let chatOpen = false;
-const chatInput = document.getElementById("chat-input");
-const chatMessages = document.getElementById("chat-messages");
 
 document.addEventListener("keydown", e => {
   if (e.key === "Enter") {
