@@ -134,7 +134,13 @@ canvas {
   cursor: pointer;
   z-index: 100; /* above chat */
 }
-
+.icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white; /* default fill so icons are visible */
+  box-shadow: 0 0 6px rgba(255,255,255,0.8);
+}
 /* Rarity slot colors */
 .slot.common     { background: green; }
 .slot.unusual    { background: yellow; }
