@@ -89,19 +89,20 @@ canvas {
 
 #inventory {
   position: absolute;
-  top: 120px;          
+  top: 400px;          
   left: 10px;
   background: rgba(30,30,30,0.95);
   border: 2px solid #aaa;
   border-radius: 8px;
   padding: 10px;
-  width: 280px;        
-  min-height: 200px;   
-  z-index: 500;
-
-  display: flex;        /* use flexbox */
-  flex-wrap: wrap;      /* allow wrapping into rows */
+  width: 300px;        /* your updated width */
+  min-height: 200px;   /* keeps it looking like a box even when empty */
+  max-height: 400px;   /* limit how tall it can grow */
+  overflow-y: auto;    /* adds vertical scrollbar when full */
+  display: flex;
+  flex-wrap: wrap;     /* items flow side by side and wrap */
   align-content: flex-start;
+  z-index: 500;
 }
 
 /* Header stays at the top, outside the flex flow */
