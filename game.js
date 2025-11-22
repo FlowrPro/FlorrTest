@@ -127,6 +127,7 @@ if (closeSettings) {
   });
 }
 
+
 // --- Mouse movement toggle ---
 let mouseMovementEnabled = false;
 
