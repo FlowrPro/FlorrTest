@@ -9,10 +9,8 @@
   <!-- Homescreen overlay -->
   <div id="homescreen">
     <h1 class="game-title">Flowers BETA</h1>
-    <div class="username-container">
-      <input type="text" id="username" placeholder="Enter your username">
-      <button id="play-btn">Play</button>
-    </div>
+    <!-- No username input here anymore; login.html handles that -->
+    <button id="logout-btn">Logout</button>
   </div>
 
   <!-- Settings button top-left (global, visible in homescreen and game) -->
@@ -25,33 +23,33 @@
   <!-- Fullscreen canvas -->
   <canvas id="gameCanvas"></canvas>
 
- <div id="settings-panel">
-  <div class="settings-box">
-    <!-- Tab headers -->
-    <div class="settings-tabs">
-      <button class="tab-btn active" data-tab="game">Game</button>
-      <button class="tab-btn" data-tab="controls">Controls</button>
-      <button class="tab-btn" data-tab="credits">Credits</button>
-    </div>
+  <div id="settings-panel">
+    <div class="settings-box">
+      <!-- Tab headers -->
+      <div class="settings-tabs">
+        <button class="tab-btn active" data-tab="game">Game</button>
+        <button class="tab-btn" data-tab="controls">Controls</button>
+        <button class="tab-btn" data-tab="credits">Credits</button>
+      </div>
 
-    <!-- Tab content areas -->
-    <div class="tab-content" id="tab-game">
-      <!-- Empty for now -->
-    </div>
+      <!-- Tab content areas -->
+      <div class="tab-content" id="tab-game">
+        <!-- Empty for now -->
+      </div>
 
-    <div class="tab-content hidden" id="tab-controls">
-      <label>
-        <input type="checkbox" id="toggle-mouse"> Enable Mouse Movement
-      </label>
-    </div>
+      <div class="tab-content hidden" id="tab-controls">
+        <label>
+          <input type="checkbox" id="toggle-mouse"> Enable Mouse Movement
+        </label>
+      </div>
 
-    <div class="tab-content hidden" id="tab-credits">
-      <!-- Empty for now -->
-    </div>
+      <div class="tab-content hidden" id="tab-credits">
+        <!-- Empty for now -->
+      </div>
 
-    <button id="close-settings">Close</button>
+      <button id="close-settings">Close</button>
+    </div>
   </div>
-</div>
 
   <!-- Hotbar bottom center -->
   <div id="hotbar">
@@ -84,5 +82,17 @@
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <!-- Then load your game code (which contains all chat logic) -->
   <script type="module" src="game.js"></script>
+
+  <!-- Logout logic -->
+  <script>
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("sessionToken");
+        localStorage.removeItem("username");
+        window.location.href = "/login.html";
+      });
+    }
+  </script>
 </body>
 </html>
