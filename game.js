@@ -140,7 +140,6 @@ function connectToGame() {
     localStorage.removeItem("username");
     document.getElementById("homescreen").style.display = "block";
   });
-}
 
 window.onload = connectToGame;
 
