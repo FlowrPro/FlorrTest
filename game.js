@@ -349,13 +349,14 @@ function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Apply camera offset
+  // Apply camera offset for main world
   ctx.translate(-cameraX, -cameraY);
 
+  // Background tint
   ctx.fillStyle = "rgba(0,128,0,0.25)";
   ctx.fillRect(0, 0, world.width || canvas.width, world.height || canvas.height);
 
-    // Draw rectangular world
+  // Draw rectangular world
   ctx.fillStyle = "#2ecc71";
   ctx.fillRect(0, 0, world.width, world.height);
 
@@ -363,14 +364,45 @@ function draw() {
   ctx.lineWidth = 3;
   ctx.strokeRect(0, 0, world.width, world.height);
 
+  // --- Minimap ---
+  const mapWidth = 200;   // minimap size in pixels
+  const mapHeight = 100;
+  const margin = 20;      // distance from screen edge
+
+  // Position minimap in top-right corner of the screen
+  const miniX = canvas.width - mapWidth - margin;
+  const miniY = margin;
+
+  // Reset transform so minimap is screen-fixed
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  // Draw minimap background
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.fillRect(miniX, miniY, mapWidth, mapHeight);
+  ctx.strokeStyle = "#fff";
+  ctx.strokeRect(miniX, miniY, mapWidth, mapHeight);
+
+  // Scale factors
+  const scaleX = mapWidth / world.width;
+  const scaleY = mapHeight / world.height;
+
+  // Draw player dot
+  const dotX = miniX + player.x * scaleX;
+  const dotY = miniY + player.y * scaleY;
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw main player + others in world
   if (player.id) {
     drawPlayer(player);
   }
-
   Object.values(otherPlayers).forEach(p => {
     drawPlayer(p);
   });
 
+  // Draw items
   items.forEach(item => {
     ctx.beginPath();
     ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
