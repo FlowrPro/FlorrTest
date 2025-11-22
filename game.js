@@ -276,7 +276,6 @@ if (p.health > 0) {
     });
   }
 }
-}
 
 function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
@@ -339,8 +338,6 @@ socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
   players.forEach(p => (otherPlayers[p.id] = p));
 });
 
-  players.forEach(p => (otherPlayers[p.id] = p));
-});
 
 socket.on("items_update", its => {
   items = its;
