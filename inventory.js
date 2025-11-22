@@ -48,7 +48,6 @@ export function renderInventory() {
     slot.dataset.index = i;
     slot.dataset.type = "inventory";
 
-    // Always visible; apply rarity only if item present
     if (item) {
       slot.appendChild(makeIcon(item));
       setSlotRarity(slot, item.rarity);
@@ -60,13 +59,17 @@ export function renderInventory() {
     slot.ondragstart = e => {
       e.dataTransfer.setData("index", i);
       e.dataTransfer.setData("type", "inventory");
+      // Prevent ghost image
+      const img = new Image();
+      img.src =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAn0B9Z0QjJkAAAAASUVORK5CYII=";
+      e.dataTransfer.setDragImage(img, 0, 0);
     };
 
     invEl.appendChild(slot);
   });
 }
 
-// Render hotbar slots with per-slot rarity
 export function renderHotbar() {
   hotbarEl.innerHTML = "";
   hotbar.forEach((item, i) => {
@@ -75,18 +78,22 @@ export function renderHotbar() {
     slot.dataset.index = i;
     slot.dataset.type = "hotbar";
 
-    // Always visible; apply rarity only if item present
     if (item) {
       slot.appendChild(makeIcon(item));
       setSlotRarity(slot, item.rarity);
     } else {
-      setSlotRarity(slot, null); // ensure no leftover rarity class
+      setSlotRarity(slot, null);
     }
 
     slot.draggable = !!item;
     slot.ondragstart = e => {
       e.dataTransfer.setData("index", i);
       e.dataTransfer.setData("type", "hotbar");
+      // Prevent ghost image
+      const img = new Image();
+      img.src =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAn0B9Z0QjJkAAAAASUVORK5CYII=";
+      e.dataTransfer.setDragImage(img, 0, 0);
     };
     slot.ondragover = e => e.preventDefault();
     slot.ondrop = e => {
@@ -95,7 +102,6 @@ export function renderHotbar() {
       if (fromType === "inventory") {
         socket.emit("equip_request", { invIndex: parseInt(fromIndex), hotbarIndex: i });
       } else if (fromType === "hotbar") {
-        // local swap between hotbar slots
         const temp = hotbar[i];
         hotbar[i] = hotbar[fromIndex];
         hotbar[fromIndex] = temp;
