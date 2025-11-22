@@ -61,6 +61,14 @@ function connectToGame() {
     localStorage.removeItem("username");
     document.getElementById("homescreen").style.display = "block";
   });
+  socket.on("disconnect", () => {
+  // Reset UI
+  document.getElementById("homescreen").style.display = "block";
+  document.getElementById("death-screen").classList.add("hidden");
+  document.getElementById("gameCanvas").classList.remove("blurred");
+  otherPlayers = {};
+  player = { id: null, x: 0, y: 0, hotbar: [], health: 100 };
+});
 }
 
     // World snapshot
