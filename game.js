@@ -126,7 +126,6 @@ closeSettings.addEventListener("click", () => {
   settingsPanel.classList.remove("show");
 });
 
-
 // --- Mouse movement toggle ---
 let mouseMovementEnabled = false;
 
