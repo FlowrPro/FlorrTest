@@ -2,6 +2,7 @@ import { inventory, hotbar, renderInventory, renderHotbar, setSocket } from "./i
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+
 // --- Fullscreen canvas setup ---
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -9,6 +10,7 @@ function resizeCanvas() {
 }
 resizeCanvas(); // initial call
 window.addEventListener("resize", resizeCanvas);
+
 let socket; // declare globally so other code can use it
 
 function connectToGame() {
@@ -16,8 +18,8 @@ function connectToGame() {
   const username = localStorage.getItem("username");
 
   if (!token || !username) {
-    alert("You must log in first!");
-    window.location.href = "/login.html";
+    // Show homescreen (login/register panel stays visible)
+    document.getElementById("homescreen").style.display = "block";
     return;
   }
 
@@ -26,6 +28,9 @@ function connectToGame() {
 
   socket.on("auth_success", (data) => {
     console.log("Authenticated as:", data.username);
+
+    // Hide homescreen once authenticated
+    document.getElementById("homescreen").style.display = "none";
 
     // Spawn player only after auth
     socket.emit("set_username", { username: data.username });
@@ -37,14 +42,14 @@ function connectToGame() {
   });
 
   socket.on("auth_failed", () => {
-    alert("Authentication failed. Please log in again.");
+    alert("Authentication failed. Please try again.");
     localStorage.removeItem("sessionToken");
     localStorage.removeItem("username");
-    window.location.href = "/login.html";
+    // Keep homescreen visible so user can retry login/register
+    document.getElementById("homescreen").style.display = "block";
   });
 }
 
-// Run when page loads
 window.onload = connectToGame;
 
 // --- CHAT SETUP ---
