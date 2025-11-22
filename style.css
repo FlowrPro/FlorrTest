@@ -99,13 +99,15 @@ canvas {
   min-height: 200px;   
   z-index: 500;
 
-  display: flex;
-  flex-direction: column; /* header + items stacked */
+  display: flex;        /* use flexbox */
+  flex-wrap: wrap;      /* allow wrapping into rows */
+  align-content: flex-start;
 }
 
-/* Header stays at the top */
+/* Header stays at the top, outside the flex flow */
 #inventory::before {
   content: "Inventory";
+  width: 100%;
   font-size: 16px;
   font-weight: bold;
   color: white;
@@ -115,21 +117,10 @@ canvas {
   padding-bottom: 4px;
 }
 
-/* Container for items */
-#inventory .inventory-item {
-  flex: 0 0 50px;       /* fixed size */
-  height: 50px;
-  margin: 4px;
-}
-
-/* Make items wrap into rows */
-#inventory {
-  flex-wrap: wrap;      /* allow wrapping */
-  align-content: flex-start;
-}
 .inventory-item {
   width: 50px;
   height: 50px;
+  margin: 4px;              /* keep spacing */
   background: #444;
   border: 1px solid #666;
   border-radius: 6px;
