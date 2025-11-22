@@ -355,13 +355,13 @@ function draw() {
   ctx.fillStyle = "rgba(0,128,0,0.25)";
   ctx.fillRect(0, 0, world.width || canvas.width, world.height || canvas.height);
 
-  ctx.beginPath();
-  ctx.arc(world.centerX, world.centerY, world.mapRadius, 0, Math.PI * 2);
+    // Draw rectangular world
   ctx.fillStyle = "#2ecc71";
-  ctx.fill();
+  ctx.fillRect(0, 0, world.width, world.height);
+
   ctx.strokeStyle = "#0f0";
   ctx.lineWidth = 3;
-  ctx.stroke();
+  ctx.strokeRect(0, 0, world.width, world.height);
 
   if (player.id) {
     drawPlayer(player);
