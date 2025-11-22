@@ -117,7 +117,7 @@ canvas {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 15; /* above chat */
+  z-index: 100; /* above chat */
 }
 
 /* Rarity slot colors */
@@ -336,7 +336,7 @@ canvas {
   flex-direction: column;
   overflow: hidden;
   font-size: 14px;
-  z-index: 10; /* below invToggle, above canvas */
+  z-index: 30; /* below invToggle, above canvas */
 }
 
 #chat-messages {
