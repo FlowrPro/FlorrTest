@@ -306,12 +306,12 @@ canvas {
   color: white;
   z-index: 999;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
-  display: none;
+  display: none;   /* hidden by default */
   width: 300px;
 }
 
 #settings-panel.show {
-  display: block;
+  display: block;  /* shown when .show is toggled */
 }
 
 .settings-box h2 {
