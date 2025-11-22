@@ -125,7 +125,24 @@ settingsBtn.addEventListener("click", () => {
 closeSettings.addEventListener("click", () => {
   settingsPanel.classList.remove("show");
 });
+// --- Settings tab switching ---
+const tabButtons = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
 
+tabButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    // Remove active from all buttons
+    tabButtons.forEach(b => b.classList.remove("active"));
+    // Hide all content
+    tabContents.forEach(c => c.classList.add("hidden"));
+
+    // Activate clicked button
+    btn.classList.add("active");
+    // Show corresponding content
+    const tabId = "tab-" + btn.dataset.tab;
+    document.getElementById(tabId).classList.remove("hidden");
+  });
+});
 // --- Mouse movement toggle ---
 let mouseMovementEnabled = false;
 
