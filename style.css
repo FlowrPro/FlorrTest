@@ -336,7 +336,7 @@ canvas {
   flex-direction: column;
   overflow: hidden;
   font-size: 14px;
-  z-index: 14; /* below invToggle, above canvas */
+  z-index: 10; /* below invToggle, above canvas */
 }
 
 #chat-messages {
