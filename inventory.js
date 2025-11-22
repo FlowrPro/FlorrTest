@@ -19,7 +19,13 @@ function setSlotRarity(slotElement, rarity) {
 function makeIcon(item) {
   const icon = document.createElement("div");
   icon.className = "icon";
-  if (item?.color) icon.style.background = item.color;
+
+  // Ensure visibility even if CSS misses
+  icon.style.width = "20px";
+  icon.style.height = "20px";
+  icon.style.borderRadius = "50%";
+  icon.style.background = item?.color || "white";
+  icon.style.boxShadow = "0 0 6px rgba(255,255,255,0.8)";
 
   if (item) {
     const tooltip = document.createElement("div");
