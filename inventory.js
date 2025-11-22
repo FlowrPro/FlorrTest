@@ -9,6 +9,14 @@ export function setSocket(s) {
   socket = s;
 }
 
+// Apply rarity class per slot (only when item exists)
+function setSlotRarity(slotElement, rarity) {
+  slotElement.classList.remove(
+    "common","unusual","rare","epic","legendary","mythic","ultra"
+  );
+  if (rarity) slotElement.classList.add(rarity);
+}
+
 function makeIcon(item) {
   const icon = document.createElement("div");
   icon.className = "icon";
@@ -23,6 +31,7 @@ function makeIcon(item) {
   <div class="tooltip-stat">Damage: <span>${item.damage}</span></div>
   <div class="tooltip-stat">Health: <span>${item.health}/${item.maxHealth}</span></div>
   <div class="tooltip-stat">Reload: <span>${(item.reload/1000).toFixed(1)}s</span></div>
+  <div class="tooltip-stat">Rarity: <span>${item.rarity || "common"}</span></div>
   <div class="tooltip-desc">${item.description}</div>
 `;
     icon.appendChild(tooltip);
@@ -39,11 +48,12 @@ export function renderInventory() {
     slot.dataset.index = i;
     slot.dataset.type = "inventory";
 
+    // Always visible; apply rarity only if item present
     if (item) {
       slot.appendChild(makeIcon(item));
-      if (item.rarity) {
-        setSlotRarity(slot, item.rarity); // apply rarity per slot
-      }
+      setSlotRarity(slot, item.rarity);
+    } else {
+      setSlotRarity(slot, null); // ensure no leftover rarity class
     }
 
     slot.draggable = !!item;
@@ -56,6 +66,7 @@ export function renderInventory() {
   });
 }
 
+// Render hotbar slots with per-slot rarity
 export function renderHotbar() {
   hotbarEl.innerHTML = "";
   hotbar.forEach((item, i) => {
@@ -64,11 +75,12 @@ export function renderHotbar() {
     slot.dataset.index = i;
     slot.dataset.type = "hotbar";
 
+    // Always visible; apply rarity only if item present
     if (item) {
       slot.appendChild(makeIcon(item));
-      if (item.rarity) {
-        setSlotRarity(slot, item.rarity); // apply rarity per slot
-      }
+      setSlotRarity(slot, item.rarity);
+    } else {
+      setSlotRarity(slot, null); // ensure no leftover rarity class
     }
 
     slot.draggable = !!item;
@@ -83,8 +95,10 @@ export function renderHotbar() {
       if (fromType === "inventory") {
         socket.emit("equip_request", { invIndex: parseInt(fromIndex), hotbarIndex: i });
       } else if (fromType === "hotbar") {
+        // local swap between hotbar slots
+        const temp = hotbar[i];
         hotbar[i] = hotbar[fromIndex];
-        hotbar[fromIndex] = null;
+        hotbar[fromIndex] = temp;
         renderHotbar();
       }
     };
@@ -93,6 +107,7 @@ export function renderHotbar() {
   });
 }
 
+// Container-level drop: unequip from hotbar back to inventory
 invEl.ondragover = e => e.preventDefault();
 invEl.ondrop = e => {
   const fromIndex = e.dataTransfer.getData("index");
