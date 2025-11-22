@@ -25,16 +25,33 @@
   <!-- Fullscreen canvas -->
   <canvas id="gameCanvas"></canvas>
 
-  <!-- Settings panel (hidden initially) -->
-  <div id="settings-panel">
-    <div class="settings-box">
-      <h2>Settings</h2>
+ <div id="settings-panel">
+  <div class="settings-box">
+    <!-- Tab headers -->
+    <div class="settings-tabs">
+      <button class="tab-btn active" data-tab="game">Game</button>
+      <button class="tab-btn" data-tab="controls">Controls</button>
+      <button class="tab-btn" data-tab="credits">Credits</button>
+    </div>
+
+    <!-- Tab content areas -->
+    <div class="tab-content" id="tab-game">
+      <!-- Empty for now -->
+    </div>
+
+    <div class="tab-content hidden" id="tab-controls">
       <label>
         <input type="checkbox" id="toggle-mouse"> Enable Mouse Movement
-      </label><br>
-      <button id="close-settings">Close</button>
+      </label>
     </div>
+
+    <div class="tab-content hidden" id="tab-credits">
+      <!-- Empty for now -->
+    </div>
+
+    <button id="close-settings">Close</button>
   </div>
+</div>
 
   <!-- Hotbar bottom center -->
   <div id="hotbar">
