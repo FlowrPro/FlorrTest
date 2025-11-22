@@ -84,7 +84,15 @@ if (toggleMouse) {
     mouseMovementEnabled = e.target.checked;
   });
 }
-
+// --- Rarity assignment helper ---
+function setSlotRarity(slotElement, rarity) {
+  // Remove any existing rarity classes
+  slotElement.classList.remove(
+    "common","unusual","rare","epic","legendary","mythic","ultra"
+  );
+  // Add the new rarity class
+  slotElement.classList.add(rarity);
+}
 // Track mouse position
 let mouseX = 0;
 let mouseY = 0;
@@ -392,7 +400,15 @@ if (playBtn) {
       alert("Please enter a username!");
       return;
     }
+  // Mark all spawn petals as common
+document.querySelectorAll("#hotbar .slot").forEach(slot => {
+  setSlotRarity(slot, "common");
+});
 
+// Upgrade slot 1 to rare
+const slot1 = document.querySelector("#hotbar .slot:nth-child(1)");
+setSlotRarity(slot1, "rare");
+    
     const homescreen = document.getElementById("homescreen");
     homescreen.classList.add("fade-out");
 
