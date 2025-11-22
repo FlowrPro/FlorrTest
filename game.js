@@ -81,9 +81,6 @@ function connectToGame() {
   });
 }
 
-      players.forEach(p => (otherPlayers[p.id] = p));
-    });
-
     // Items update
     socket.on("items_update", its => { items = its; });
 
