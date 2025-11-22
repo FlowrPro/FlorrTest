@@ -133,7 +133,6 @@ function connectToGame() {
       deathScreen.classList.remove("show");
       document.getElementById("gameCanvas").classList.remove("blurred");
     });
-  });
 
   socket.on("auth_failed", () => {
     alert("Authentication failed. Please try again.");
