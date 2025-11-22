@@ -1,5 +1,5 @@
 import { inventory, hotbar, renderInventory, renderHotbar, setSocket } from "./inventory.js";
-
+import { io } from "socket.io-client";
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 // --- Fullscreen canvas setup ---
@@ -9,7 +9,6 @@ function resizeCanvas() {
 }
 resizeCanvas(); // initial call
 window.addEventListener("resize", resizeCanvas);
-import { io } from "socket.io-client";
 const socket = io("https://florrtest-backend-1.onrender.com"); 
 setSocket(socket);
 
