@@ -13,7 +13,6 @@ window.addEventListener("resize", resizeCanvas);
 const socket = io("https://florrtest-backend-1.onrender.com"); 
 setSocket(socket);
 // --- CHAT SETUP ---
-// Grab chat elements
 const chatInput = document.getElementById("chat-input");
 const chatMessages = document.getElementById("chat-messages");
 
@@ -26,14 +25,20 @@ chatInput.addEventListener("keydown", e => {
   }
 });
 
-// Receive messages
+// Receive messages (with cap of 6)
 socket.on("chat_message", ({ username, text }) => {
   const msg = document.createElement("div");
   msg.className = "chat-msg";
   msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
   chatMessages.appendChild(msg);
   chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  // ✅ Keep only the last 6 messages
+  while (chatMessages.children.length > 6) {
+    chatMessages.removeChild(chatMessages.firstChild);
+  }
 });
+
 
 
 // Receive messages
