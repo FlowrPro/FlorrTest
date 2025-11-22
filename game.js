@@ -1,5 +1,5 @@
 import { inventory, hotbar, renderInventory, renderHotbar, setSocket } from "./inventory.js";
-import { io } from "socket.io-client";
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 // --- Fullscreen canvas setup ---
