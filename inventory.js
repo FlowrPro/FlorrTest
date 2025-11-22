@@ -36,14 +36,22 @@ export function renderInventory() {
   inventory.forEach((item, i) => {
     const slot = document.createElement("div");
     slot.className = "slot";
-    if (item) slot.appendChild(makeIcon(item));
-    slot.draggable = !!item;
     slot.dataset.index = i;
     slot.dataset.type = "inventory";
+
+    if (item) {
+      slot.appendChild(makeIcon(item));
+      if (item.rarity) {
+        setSlotRarity(slot, item.rarity); // apply rarity per slot
+      }
+    }
+
+    slot.draggable = !!item;
     slot.ondragstart = e => {
       e.dataTransfer.setData("index", i);
       e.dataTransfer.setData("type", "inventory");
     };
+
     invEl.appendChild(slot);
   });
 }
@@ -53,9 +61,16 @@ export function renderHotbar() {
   hotbar.forEach((item, i) => {
     const slot = document.createElement("div");
     slot.className = "slot";
-    if (item) slot.appendChild(makeIcon(item));
     slot.dataset.index = i;
     slot.dataset.type = "hotbar";
+
+    if (item) {
+      slot.appendChild(makeIcon(item));
+      if (item.rarity) {
+        setSlotRarity(slot, item.rarity); // apply rarity per slot
+      }
+    }
+
     slot.draggable = !!item;
     slot.ondragstart = e => {
       e.dataTransfer.setData("index", i);
@@ -73,6 +88,7 @@ export function renderHotbar() {
         renderHotbar();
       }
     };
+
     hotbarEl.appendChild(slot);
   });
 }
