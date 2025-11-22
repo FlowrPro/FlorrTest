@@ -402,6 +402,16 @@ function draw() {
   ctx.beginPath();
   ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
   ctx.fill();
+  // Draw other players as smaller colored dots
+Object.values(otherPlayers).forEach(p => {
+  const ox = miniX + p.x * scaleX;
+  const oy = miniY + p.y * scaleY;
+  ctx.fillStyle = "red"; // you can vary by team, username, etc.
+  ctx.beginPath();
+  ctx.arc(ox, oy, 3, 0, Math.PI * 2);
+  ctx.fill();
+});
+
 }
 
 function gameLoop() {
