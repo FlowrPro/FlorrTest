@@ -22,10 +22,12 @@ function connectToGame() {
     return;
   }
 
-  socket = io("https://florrtest-backend-1.onrender.com");
+ socket = io("https://florrtest-backend-1.onrender.com");
 
-  // Send both token and username
+// ✅ Wait until the socket is connected before sending auth
+socket.on("connect", () => {
   socket.emit("auth", { token, username });
+});
 
   socket.on("auth_success", (data) => {
     console.log("Authenticated as:", data.username);
@@ -48,12 +50,13 @@ function connectToGame() {
     });
   });
 
-  socket.on("auth_failed", () => {
-    alert("Authentication failed. Please try again.");
-    localStorage.removeItem("sessionToken");
-    localStorage.removeItem("username");
-    document.getElementById("homescreen").style.display = "block";
-  });
+  socket.on("auth_failed", ({ reason } = {}) => {
+  console.warn("Auth failed:", reason || "unknown");
+  // Don’t spam alerts on page load; just reset and show homescreen
+  localStorage.removeItem("sessionToken");
+  localStorage.removeItem("username");
+  document.getElementById("homescreen").style.display = "block";
+});
 
   socket.on("disconnect", () => {
     document.getElementById("homescreen").style.display = "block";
@@ -232,6 +235,29 @@ settingsBtn.addEventListener("click", () => {
 closeSettings.addEventListener("click", () => {
   settingsPanel.classList.remove("show");
 });
+// ✅ Add login helper here
+async function loginAndConnect(username, password) {
+  try {
+    const res = await fetch("https://florrtest-backend-1.onrender.com/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!data.success || !data.token) {
+      throw new Error(data.error || "Login failed");
+    }
+
+    localStorage.setItem("sessionToken", data.token);
+    localStorage.setItem("username", username);
+
+    // Reconnect and authenticate with the fresh token
+    connectToGame();
+  } catch (err) {
+    console.error("Login error:", err);
+    alert("Login failed: " + err.message);
+  }
+}
 
 // Tabs
 const tabButtons = document.querySelectorAll(".tab-btn");
