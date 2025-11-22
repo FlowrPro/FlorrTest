@@ -38,14 +38,88 @@ function connectToGame() {
     // Pass socket into inventory system
     setSocket(socket);
 
-    // All your existing socket.on(...) listeners will still work
+    // --- Attach all socket listeners here ---
+
+    // Chat inbound (cap 6 messages)
+    socket.on("chat_message", ({ username, text }) => {
+      const msg = document.createElement("div");
+      msg.className = "chat-msg";
+      msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      while (chatMessages.children.length > 6) {
+        chatMessages.removeChild(chatMessages.firstChild);
+      }
+    });
+
+    // World snapshot
+    socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
+      world = w;
+      player = self || player;
+      items = its;
+
+      if (self) {
+        inventory.splice(0, inventory.length, ...self.inventory);
+        hotbar.splice(0, hotbar.length, ...self.hotbar);
+        renderInventory();
+        renderHotbar();
+      }
+
+      players.forEach(p => (otherPlayers[p.id] = p));
+    });
+
+    // Items update
+    socket.on("items_update", its => { items = its; });
+
+    // Inventory update
+    socket.on("inventory_update", inv => {
+      inventory.splice(0, inventory.length, ...inv);
+      renderInventory();
+    });
+
+    // Hotbar update
+    socket.on("hotbar_update", hb => {
+      hotbar.splice(0, hotbar.length, ...hb);
+      renderHotbar();
+    });
+
+    // Player update
+    socket.on("player_update", p => {
+      if (p.id === socket.id) {
+        player.x = p.x;
+        player.y = p.y;
+        player.orbitAngle = p.orbitAngle;
+        player.orbitDist = p.orbitDist;
+        player.hotbar = [...p.hotbar];
+        hotbar.splice(0, hotbar.length, ...p.hotbar);
+        player.username = p.username;
+      } else {
+        otherPlayers[p.id] = p;
+      }
+    });
+
+    // Join/leave
+    socket.on("player_join", p => { otherPlayers[p.id] = p; });
+    socket.on("player_leave", ({ id }) => { delete otherPlayers[id]; });
+
+    // Death screen events
+    socket.on("player_dead", () => {
+      const deathScreen = document.getElementById("death-screen");
+      deathScreen.classList.add("show");
+      document.getElementById("gameCanvas").classList.add("blurred");
+    });
+
+    socket.on("respawn_success", () => {
+      const deathScreen = document.getElementById("death-screen");
+      deathScreen.classList.remove("show");
+      document.getElementById("gameCanvas").classList.remove("blurred");
+    });
   });
 
   socket.on("auth_failed", () => {
     alert("Authentication failed. Please try again.");
     localStorage.removeItem("sessionToken");
     localStorage.removeItem("username");
-    // Keep homescreen visible so user can retry login/register
     document.getElementById("homescreen").style.display = "block";
   });
 }
@@ -56,33 +130,31 @@ window.onload = connectToGame;
 const chatInput = document.getElementById("chat-input");
 const chatMessages = document.getElementById("chat-messages");
 
-// Send message on Enter
+// Send message on Enter (when chat bar is visible)
 chatInput.addEventListener("keydown", e => {
   if (e.key === "Enter" && chatInput.value.trim() !== "") {
     const text = chatInput.value.trim();
-    socket.emit("chat_message", { text }); // only send text
+    if (socket) socket.emit("chat_message", { text });
     chatInput.value = "";
   }
 });
+
 let chatOpen = false;
 
+// Toggle chat on Enter: open, type, Enter sends + closes
 document.addEventListener("keydown", e => {
   if (e.key === "Enter") {
     e.preventDefault(); // stop default form behavior
-
     if (!chatOpen) {
-      // First press: open chat and focus
       chatInput.classList.remove("hidden");
       chatInput.focus();
       chatOpen = true;
     } else {
-      // Chat is open: send message if any
       const text = chatInput.value.trim();
-      if (text !== "") {
+      if (text !== "" && socket) {
         socket.emit("chat_message", { text });
         chatInput.value = "";
       }
-      // Then close chat
       chatInput.blur();
       chatInput.classList.add("hidden");
       chatOpen = false;
@@ -90,21 +162,7 @@ document.addEventListener("keydown", e => {
   }
 });
 
-// Receive messages (with cap of 6)
-socket.on("chat_message", ({ username, text }) => {
-  const msg = document.createElement("div");
-  msg.className = "chat-msg";
-  msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
-  chatMessages.appendChild(msg);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-
-  // ✅ Keep only the last 6 messages
-  while (chatMessages.children.length > 6) {
-    chatMessages.removeChild(chatMessages.firstChild);
-  }
-});
-
-
+// --- Player, world, camera, controls ---
 let player = { 
   id: null, 
   x: 0, 
@@ -112,15 +170,19 @@ let player = {
   radius: 20, 
   hotbar: [], 
   orbitAngle: 0,
-  orbitDist: 56,       // per-player orbit distance
-  leftHeld: false,     // per-player input state
+  orbitDist: 56,
+  leftHeld: false,
   rightHeld: false,
-  username: null
+  username: null,
+  health: 100
 };
+
 let orbitSpeed = 0.02;
 let extendDist = 96;
 let retractDist = 41;
-let world = { centerX: 800, centerY: 450, mapRadius: 390 };
+
+// World defaults; server will provide width/height
+let world = { centerX: 800, centerY: 450, mapRadius: 390, width: 1600, height: 900 };
 let items = [];
 let otherPlayers = {};
 
@@ -132,6 +194,7 @@ function updateCamera() {
   cameraY = player.y - canvas.height / 2;
 }
 
+// Mouse buttons
 canvas.addEventListener("mousedown", e => {
   if (e.button === 0) player.leftHeld = true;
   if (e.button === 2) player.rightHeld = true;
@@ -142,6 +205,7 @@ canvas.addEventListener("mouseup", e => {
 });
 canvas.addEventListener("contextmenu", e => e.preventDefault());
 
+// Inventory toggle
 document.addEventListener("keydown", e => {
   if (e.key === "x") toggleInventory();
 });
@@ -151,6 +215,7 @@ function toggleInventory() {
   document.getElementById("inventory").classList.toggle("hidden");
 }
 
+// Settings panel
 const settingsBtn = document.getElementById("settings-btn");
 const settingsPanel = document.getElementById("settings-panel");
 const closeSettings = document.getElementById("close-settings");
@@ -165,25 +230,22 @@ settingsBtn.addEventListener("click", () => {
 closeSettings.addEventListener("click", () => {
   settingsPanel.classList.remove("show");
 });
-// --- Settings tab switching ---
+
+// Tabs
 const tabButtons = document.querySelectorAll(".tab-btn");
 const tabContents = document.querySelectorAll(".tab-content");
 
 tabButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    // Remove active from all buttons
     tabButtons.forEach(b => b.classList.remove("active"));
-    // Hide all content
     tabContents.forEach(c => c.classList.add("hidden"));
-
-    // Activate clicked button
     btn.classList.add("active");
-    // Show corresponding content
     const tabId = "tab-" + btn.dataset.tab;
     document.getElementById(tabId).classList.remove("hidden");
   });
 });
-// --- Mouse movement toggle ---
+
+// Mouse movement toggle
 let mouseMovementEnabled = false;
 
 const toggleMouse = document.getElementById("toggle-mouse");
@@ -192,15 +254,15 @@ if (toggleMouse) {
     mouseMovementEnabled = e.target.checked;
   });
 }
+
 // --- Rarity assignment helper ---
 function setSlotRarity(slotElement, rarity) {
-  // Remove any existing rarity classes
   slotElement.classList.remove(
     "common","unusual","rare","epic","legendary","mythic","ultra"
   );
-  // Add the new rarity class
   slotElement.classList.add(rarity);
 }
+
 // Track mouse position
 let mouseX = 0;
 let mouseY = 0;
@@ -208,35 +270,42 @@ canvas.addEventListener("mousemove", (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
 });
+
+// Keyboard
 const keys = {};
 document.addEventListener("keydown", e => (keys[e.key] = true));
 document.addEventListener("keyup", e => (keys[e.key] = false));
 
+// --- Update / Game logic ---
 function update() {
   // Skip update if player not yet spawned
   if (!player || !player.id) return;
 
   let dx = 0, dy = 0;
 
-if (mouseMovementEnabled) {
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
-  const diffX = mouseX - centerX;
-  const diffY = mouseY - centerY;
-  const dist = Math.hypot(diffX, diffY);
+  if (mouseMovementEnabled) {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const diffX = mouseX - centerX;
+    const diffY = mouseY - centerY;
+    const dist = Math.hypot(diffX, diffY);
 
-  if (dist > 20) { // small deadzone
-    dx = diffX / dist;
-    dy = diffY / dist;
+    if (dist > 20) { // small deadzone
+      dx = diffX / dist;
+      dy = diffY / dist;
+    }
+  } else {
+    if (keys["w"]) dy -= 1;
+    if (keys["s"]) dy += 1;
+    if (keys["a"]) dx -= 1;
+    if (keys["d"]) dx += 1;
   }
-} else {
-  if (keys["w"]) dy -= 1;
-  if (keys["s"]) dy += 1;
-  if (keys["a"]) dx -= 1;
-  if (keys["d"]) dx += 1;
-}
 
-if (dx !== 0 || dy !== 0) socket.emit("move", { dx, dy });
+  // Send movement if any
+  if (dx !== 0 || dy !== 0) {
+    if (socket) socket.emit("move", { dx, dy });
+  }
+
   // Orbit distance controlled per player
   if (player.leftHeld) {
     player.orbitDist = extendDist;
@@ -246,19 +315,20 @@ if (dx !== 0 || dy !== 0) socket.emit("move", { dx, dy });
     player.orbitDist = 56;
   }
 
-  socket.emit("orbit_control", { orbitDist: player.orbitDist });
+  if (socket) socket.emit("orbit_control", { orbitDist: player.orbitDist });
 
   // Item collisions
   items.forEach(item => {
     const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist < player.radius + item.radius) {
-      socket.emit("pickup_request", { itemId: item.id });
+      if (socket) socket.emit("pickup_request", { itemId: item.id });
     }
   });
 
-  updateCamera(); // NEW: update camera each frame
+  updateCamera(); // update camera each frame
 }
 
+// --- Drawing ---
 function drawPlayer(p) {
   // Body
   ctx.beginPath();
@@ -344,47 +414,47 @@ function drawPlayer(p) {
   }
 
   // Smile or frown
-ctx.beginPath();
-const smileRadius = p.radius * 0.6;
-if (p.health > 0) {
-  // Normal smile
-  ctx.arc(p.x, p.y + p.radius * 0.2, smileRadius, 0.2 * Math.PI, 0.8 * Math.PI);
-} else {
-  // Frown when dead
-  ctx.arc(p.x, p.y + p.radius * 0.5, smileRadius, 1.2 * Math.PI, 1.8 * Math.PI);
-}
-ctx.strokeStyle = "black";
-ctx.lineWidth = 2;
-ctx.stroke();
+  ctx.beginPath();
+  const smileRadius = p.radius * 0.6;
+  if (p.health > 0) {
+    ctx.arc(p.x, p.y + p.radius * 0.2, smileRadius, 0.2 * Math.PI, 0.8 * Math.PI);
+  } else {
+    ctx.arc(p.x, p.y + p.radius * 0.5, smileRadius, 1.2 * Math.PI, 1.8 * Math.PI);
+  }
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
   // Orbiting petals: only draw if alive and not reloading
-if (p.health > 0) {
-  const equipped = p.hotbar.filter(i => i);
-  if (equipped.length > 0) {
-    const angleStep = (2 * Math.PI) / equipped.length;
-    const now = Date.now();
-    equipped.forEach((item, idx) => {
-      if (item.reloadUntil && now < item.reloadUntil) return;
+  if (p.health > 0) {
+    const equipped = p.hotbar.filter(i => i);
+    if (equipped.length > 0) {
+      const angleStep = (2 * Math.PI) / equipped.length;
+      const now = Date.now();
+      equipped.forEach((item, idx) => {
+        if (item.reloadUntil && now < item.reloadUntil) return;
 
-      const angle = p.orbitAngle + idx * angleStep;
-      const baseX = p.x + (p.orbitDist || 56) * Math.cos(angle);
-      const baseY = p.y + (p.orbitDist || 56) * Math.sin(angle);
+        const angle = p.orbitAngle + idx * angleStep;
+        const baseX = p.x + (p.orbitDist || 56) * Math.cos(angle);
+        const baseY = p.y + (p.orbitDist || 56) * Math.sin(angle);
 
-      // Bounce animation: scale radius for 300ms after respawn
-      let radius = 8;
-      if (item.reloadUntil && now < item.reloadUntil + 300) {
-        const t = (now - item.reloadUntil) / 300; // 0 → 1
-        const bounce = Math.sin(t * Math.PI);     // smooth in/out
-        radius = 8 + bounce * 4;                  // grow/shrink
-      }
+        // Bounce animation: scale radius for 300ms after respawn
+        let radius = 8;
+        if (item.reloadUntil && now < item.reloadUntil + 300) {
+          const t = (now - item.reloadUntil) / 300; // 0 → 1
+          const bounce = Math.sin(t * Math.PI);     // smooth in/out
+          radius = 8 + bounce * 4;                  // grow/shrink
+        }
 
-      ctx.beginPath();
-      ctx.arc(baseX, baseY, radius, 0, Math.PI * 2);
-      ctx.fillStyle = item.color || "cyan";
-      ctx.fill();
-    });
+        ctx.beginPath();
+        ctx.arc(baseX, baseY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = item.color || "cyan";
+        ctx.fill();
+      });
+    }
   }
 }
-}
+
 function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -404,13 +474,14 @@ function draw() {
   ctx.lineWidth = 3;
   ctx.strokeRect(0, 0, world.width, world.height);
 
-  // --- Draw players/items in world (with camera offset still active) ---
+  // --- Draw players/items in world ---
   if (player.id) {
     drawPlayer(player);
   }
   Object.values(otherPlayers).forEach(p => {
     drawPlayer(p);
   });
+
   items.forEach(item => {
     ctx.beginPath();
     ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
@@ -418,42 +489,43 @@ function draw() {
     ctx.fill();
   });
 
-  // --- Minimap (screen-fixed) ---
+  // --- Minimap ---
   const mapWidth = 200;
   const mapHeight = 100;
   const margin = 20;
   const miniX = canvas.width - mapWidth - margin;
   const miniY = margin;
 
-  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform again for minimap
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform for minimap
 
   ctx.fillStyle = "rgba(0,0,0,0.5)";
   ctx.fillRect(miniX, miniY, mapWidth, mapHeight);
   ctx.strokeStyle = "#fff";
   ctx.strokeRect(miniX, miniY, mapWidth, mapHeight);
 
-  const scaleX = mapWidth / world.width;
-  const scaleY = mapHeight / world.height;
+  const scaleX = mapWidth / (world.width || 1);
+  const scaleY = mapHeight / (world.height || 1);
 
-  const dotX = miniX + player.x * scaleX;
-  const dotY = miniY + player.y * scaleY;
+  const dotX = miniX + (player.x || 0) * scaleX;
+  const dotY = miniY + (player.y || 0) * scaleY;
 
   ctx.fillStyle = "white";
   ctx.beginPath();
   ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
   ctx.fill();
-  // Draw other players as smaller colored dots
-Object.values(otherPlayers).forEach(p => {
-  const ox = miniX + p.x * scaleX;
-  const oy = miniY + p.y * scaleY;
-  ctx.fillStyle = "red"; // you can vary by team, username, etc.
-  ctx.beginPath();
-  ctx.arc(ox, oy, 3, 0, Math.PI * 2);
-  ctx.fill();
-});
 
+  // Draw other players as smaller colored dots
+  Object.values(otherPlayers).forEach(p => {
+    const ox = miniX + p.x * scaleX;
+    const oy = miniY + p.y * scaleY;
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(ox, oy, 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
 }
 
+// --- Loop ---
 function gameLoop() {
   update();
   draw();
@@ -461,74 +533,11 @@ function gameLoop() {
 }
 gameLoop();
 
-socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
-  world = w;
-  player = self || player;
-  items = its;
-
-  if (self) {
-    inventory.splice(0, inventory.length, ...self.inventory);
-    hotbar.splice(0, hotbar.length, ...self.hotbar);
-    renderInventory();
-    renderHotbar();
-  }
-
-  players.forEach(p => (otherPlayers[p.id] = p));
-});
-
-
-socket.on("items_update", its => {
-  items = its;
-});
-
-socket.on("inventory_update", inv => {
-  inventory.splice(0, inventory.length, ...inv);
-  renderInventory();
-});
-
-socket.on("hotbar_update", hb => {
-  hotbar.splice(0, hotbar.length, ...hb);
-  renderHotbar();
-});
-
-socket.on("player_update", p => {
-  if (p.id === socket.id) {
-    player.x = p.x;
-    player.y = p.y;
-    player.orbitAngle = p.orbitAngle;
-    player.orbitDist = p.orbitDist;
-    player.hotbar = [...p.hotbar];
-    hotbar.splice(0, hotbar.length, ...p.hotbar);
-    player.username = p.username;
-  } else {
-    otherPlayers[p.id] = p;
-  }
-});
-
-socket.on("player_join", p => {
-  otherPlayers[p.id] = p;
-});
-
-socket.on("player_leave", ({ id }) => {
-  delete otherPlayers[id];
-});
-// --- Death screen events ---
-socket.on("player_dead", () => {
-  const deathScreen = document.getElementById("death-screen");
-  deathScreen.classList.add("show"); // fade in
-  document.getElementById("gameCanvas").classList.add("blurred");
-});
-
-socket.on("respawn_success", () => {
-  const deathScreen = document.getElementById("death-screen");
-  deathScreen.classList.remove("show"); // fade out
-  document.getElementById("gameCanvas").classList.remove("blurred");
-});
-
+// --- Respawn button ---
 const respawnBtn = document.getElementById("respawn-btn");
 if (respawnBtn) {
   respawnBtn.addEventListener("click", () => {
-    socket.emit("respawn_request");
+    if (socket) socket.emit("respawn_request");
   });
 }
 
