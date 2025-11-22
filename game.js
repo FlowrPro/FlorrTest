@@ -24,6 +24,33 @@ chatInput.addEventListener("keydown", e => {
     chatInput.value = "";
   }
 });
+let chatOpen = false;
+const chatInput = document.getElementById("chat-input");
+const chatMessages = document.getElementById("chat-messages");
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault(); // stop default form behavior
+
+    if (!chatOpen) {
+      // First press: open chat and focus
+      chatInput.classList.remove("hidden");
+      chatInput.focus();
+      chatOpen = true;
+    } else {
+      // Chat is open: send message if any
+      const text = chatInput.value.trim();
+      if (text !== "") {
+        socket.emit("chat_message", { text });
+        chatInput.value = "";
+      }
+      // Then close chat
+      chatInput.blur();
+      chatInput.classList.add("hidden");
+      chatOpen = false;
+    }
+  }
+});
 
 // Receive messages (with cap of 6)
 socket.on("chat_message", ({ username, text }) => {
