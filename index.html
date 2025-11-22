@@ -103,31 +103,13 @@
       }
     };
 
-    loginBtn.onclick = async () => {
+    loginBtn.onclick = () => {
       const username = document.getElementById("auth-username").value.trim();
       const password = document.getElementById("auth-password").value.trim();
       if (!username || !password) return alert("Enter username and password");
 
-      try {
-        const res = await fetch("https://florrtest-backend-1.onrender.com/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (data.token) {
-          localStorage.setItem("sessionToken", data.token);
-          localStorage.setItem("username", username);
-
-          // Hide homescreen and start game
-          document.getElementById("homescreen").style.display = "none";
-          // game.js will pick up token and connect automatically
-        } else {
-          alert("Error: " + data.error);
-        }
-      } catch (err) {
-        alert("Network error: " + err.message);
-      }
+      // ✅ Call the helper defined in game.js
+      loginAndConnect(username, password);
     };
   </script>
 </body>
