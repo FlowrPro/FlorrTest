@@ -24,7 +24,9 @@ function connectToGame() {
   }
 
   socket = io("https://florrtest-backend-1.onrender.com");
-  socket.emit("auth", { token });
+
+  // FIX: send both token and username
+  socket.emit("auth", { token, username });
 
   socket.on("auth_success", (data) => {
     console.log("Authenticated as:", data.username);
@@ -39,8 +41,6 @@ function connectToGame() {
     setSocket(socket);
 
     // --- Attach all socket listeners here ---
-
-    // Chat inbound (cap 6 messages)
     socket.on("chat_message", ({ username, text }) => {
       const msg = document.createElement("div");
       msg.className = "chat-msg";
@@ -51,6 +51,17 @@ function connectToGame() {
         chatMessages.removeChild(chatMessages.firstChild);
       }
     });
+
+    // … keep the rest of your listeners unchanged …
+  });
+
+  socket.on("auth_failed", () => {
+    alert("Authentication failed. Please try again.");
+    localStorage.removeItem("sessionToken");
+    localStorage.removeItem("username");
+    document.getElementById("homescreen").style.display = "block";
+  });
+}
 
     // World snapshot
     socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
