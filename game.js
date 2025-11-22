@@ -364,51 +364,44 @@ function draw() {
   ctx.lineWidth = 3;
   ctx.strokeRect(0, 0, world.width, world.height);
 
-  // --- Minimap ---
-  const mapWidth = 200;   // minimap size in pixels
-  const mapHeight = 100;
-  const margin = 20;      // distance from screen edge
-
-  // Position minimap in top-right corner of the screen
-  const miniX = canvas.width - mapWidth - margin;
-  const miniY = margin;
-
-  // Reset transform so minimap is screen-fixed
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-  // Draw minimap background
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
-  ctx.fillRect(miniX, miniY, mapWidth, mapHeight);
-  ctx.strokeStyle = "#fff";
-  ctx.strokeRect(miniX, miniY, mapWidth, mapHeight);
-
-  // Scale factors
-  const scaleX = mapWidth / world.width;
-  const scaleY = mapHeight / world.height;
-
-  // Draw player dot
-  const dotX = miniX + player.x * scaleX;
-  const dotY = miniY + player.y * scaleY;
-  ctx.fillStyle = "white";
-  ctx.beginPath();
-  ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Draw main player + others in world
+  // --- Draw players/items in world (with camera offset still active) ---
   if (player.id) {
     drawPlayer(player);
   }
   Object.values(otherPlayers).forEach(p => {
     drawPlayer(p);
   });
-
-  // Draw items
   items.forEach(item => {
     ctx.beginPath();
     ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
     ctx.fillStyle = item.color;
     ctx.fill();
   });
+
+  // --- Minimap (screen-fixed) ---
+  const mapWidth = 200;
+  const mapHeight = 100;
+  const margin = 20;
+  const miniX = canvas.width - mapWidth - margin;
+  const miniY = margin;
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform again for minimap
+
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.fillRect(miniX, miniY, mapWidth, mapHeight);
+  ctx.strokeStyle = "#fff";
+  ctx.strokeRect(miniX, miniY, mapWidth, mapHeight);
+
+  const scaleX = mapWidth / world.width;
+  const scaleY = mapHeight / world.height;
+
+  const dotX = miniX + player.x * scaleX;
+  const dotY = miniY + player.y * scaleY;
+
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function gameLoop() {
