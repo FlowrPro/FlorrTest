@@ -5,17 +5,21 @@ async function register() {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
-  const res = await fetch("http://localhost:8080/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password })
-  });
+  try {
+    const res = await fetch("https://florrtest-backend-1.onrender.com/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
 
-  const data = await res.json();
-  if (data.success) {
-    alert("Registered successfully!");
-  } else {
-    alert("Error: " + data.error);
+    const data = await res.json();
+    if (data.success) {
+      alert("Registered successfully!");
+    } else {
+      alert("Error: " + data.error);
+    }
+  } catch (err) {
+    alert("Network error: " + err.message);
   }
 }
 
@@ -24,28 +28,31 @@ async function login() {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
-  const res = await fetch("http://localhost:8080/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password })
-  });
+  try {
+    const res = await fetch("https://florrtest-backend-1.onrender.com/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
 
-  const data = await res.json();
-  if (data.token) {
-    // Save token + username for later use
-    localStorage.setItem("sessionToken", data.token);
-    localStorage.setItem("username", username);
+    const data = await res.json();
+    if (data.token) {
+      // Save token + username for later use
+      localStorage.setItem("sessionToken", data.token);
+      localStorage.setItem("username", username);
 
-    alert("Login successful!");
-
-    // Redirect to game page
-    window.location.href = "/game.html";
-  } else {
-    alert("Error: " + data.error);
+      alert("Login successful!");
+      // Redirect to your game page (index.html in your case)
+      window.location.href = "/index.html";
+    } else {
+      alert("Error: " + data.error);
+    }
+  } catch (err) {
+    alert("Network error: " + err.message);
   }
 }
 
-// When game.html loads, authenticate with the server
+// When game loads, authenticate with the server
 function connectToGame() {
   const token = localStorage.getItem("sessionToken");
   const username = localStorage.getItem("username");
@@ -56,8 +63,8 @@ function connectToGame() {
     return;
   }
 
-  // Connect to Socket.IO server
-  const socket = io("http://localhost:8080");
+  // Connect to Socket.IO server hosted on Render
+  const socket = io("https://florrtest-backend-1.onrender.com");
 
   // Send token to backend for authentication
   socket.emit("auth", { token });
