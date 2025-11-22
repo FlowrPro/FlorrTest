@@ -527,22 +527,4 @@ if (respawnBtn) {
   });
 }
 
-const playBtn = document.getElementById("play-btn");
-if (playBtn) {
-  playBtn.addEventListener("click", () => {
-    const usernameInput = document.getElementById("username");
-    const username = usernameInput.value.trim();
-    if (!username) {
-      alert("Please enter a username!");
-      return;
-    }
 
-    const homescreen = document.getElementById("homescreen");
-    homescreen.classList.add("fade-out");
-
-    setTimeout(() => {
-  homescreen.style.display = "none";
-  // No need to emit set_username here — it happens after auth_success
-}, 800);
-  });
-}
