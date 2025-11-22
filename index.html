@@ -9,11 +9,17 @@
   <!-- Homescreen overlay -->
   <div id="homescreen">
     <h1 class="game-title">Flowers BETA</h1>
-    <!-- No username input here anymore; login.html handles that -->
-    <button id="logout-btn">Logout</button>
+
+    <!-- Login/Register panel -->
+    <div class="auth-container">
+      <input type="text" id="auth-username" placeholder="Username">
+      <input type="password" id="auth-password" placeholder="Password">
+      <button id="register-btn">Register</button>
+      <button id="login-btn">Login</button>
+    </div>
   </div>
 
-  <!-- Settings button top-left (global, visible in homescreen and game) -->
+  <!-- Settings button top-left -->
   <button id="settings-btn">
     <span class="gear-icon">
       <span></span><span></span><span></span><span></span>
@@ -23,48 +29,35 @@
   <!-- Fullscreen canvas -->
   <canvas id="gameCanvas"></canvas>
 
+  <!-- Settings panel -->
   <div id="settings-panel">
     <div class="settings-box">
-      <!-- Tab headers -->
       <div class="settings-tabs">
         <button class="tab-btn active" data-tab="game">Game</button>
         <button class="tab-btn" data-tab="controls">Controls</button>
         <button class="tab-btn" data-tab="credits">Credits</button>
       </div>
-
-      <!-- Tab content areas -->
-      <div class="tab-content" id="tab-game">
-        <!-- Empty for now -->
-      </div>
-
+      <div class="tab-content" id="tab-game"></div>
       <div class="tab-content hidden" id="tab-controls">
-        <label>
-          <input type="checkbox" id="toggle-mouse"> Enable Mouse Movement
-        </label>
+        <label><input type="checkbox" id="toggle-mouse"> Enable Mouse Movement</label>
       </div>
-
-      <div class="tab-content hidden" id="tab-credits">
-        <!-- Empty for now -->
-      </div>
-
+      <div class="tab-content hidden" id="tab-credits"></div>
       <button id="close-settings">Close</button>
     </div>
   </div>
 
-  <!-- Hotbar bottom center -->
-  <div id="hotbar">
-    <!-- Slots will be filled dynamically in game.js -->
-  </div>
+  <!-- Hotbar -->
+  <div id="hotbar"></div>
 
-  <!-- Inventory toggle button (moved above chat box) -->
+  <!-- Inventory toggle -->
   <button id="invToggle" class="slot common">
     <div class="icon basic-petal"></div>
   </button>
 
-  <!-- Full inventory (hidden initially) -->
+  <!-- Inventory -->
   <div id="inventory" class="hidden"></div>
 
-  <!-- Death screen overlay (hidden initially) -->
+  <!-- Death screen -->
   <div id="death-screen" class="hidden">
     <div class="death-box">
       <h2>You have died</h2>
@@ -72,27 +65,70 @@
     </div>
   </div>
 
-  <!-- Chat box bottom-left -->
+  <!-- Chat -->
   <div id="chat-container">
     <div id="chat-messages"></div>
     <input id="chat-input" type="text" placeholder="Type a message..." />
   </div>
 
-  <!-- Load Socket.IO client first -->
+  <!-- Socket.IO client -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <!-- Then load your game code (which contains all chat logic) -->
+  <!-- Game logic -->
   <script type="module" src="game.js"></script>
 
-  <!-- Logout logic -->
+  <!-- Inline auth logic -->
   <script>
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("sessionToken");
-        localStorage.removeItem("username");
-        window.location.href = "/login.html";
-      });
-    }
+    const registerBtn = document.getElementById("register-btn");
+    const loginBtn = document.getElementById("login-btn");
+
+    registerBtn.onclick = async () => {
+      const username = document.getElementById("auth-username").value.trim();
+      const password = document.getElementById("auth-password").value.trim();
+      if (!username || !password) return alert("Enter username and password");
+
+      try {
+        const res = await fetch("https://florrtest-backend-1.onrender.com/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Registered successfully! Now log in.");
+        } else {
+          alert("Error: " + data.error);
+        }
+      } catch (err) {
+        alert("Network error: " + err.message);
+      }
+    };
+
+    loginBtn.onclick = async () => {
+      const username = document.getElementById("auth-username").value.trim();
+      const password = document.getElementById("auth-password").value.trim();
+      if (!username || !password) return alert("Enter username and password");
+
+      try {
+        const res = await fetch("https://florrtest-backend-1.onrender.com/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.token) {
+          localStorage.setItem("sessionToken", data.token);
+          localStorage.setItem("username", username);
+
+          // Hide homescreen and start game
+          document.getElementById("homescreen").style.display = "none";
+          // game.js will pick up token and connect automatically
+        } else {
+          alert("Error: " + data.error);
+        }
+      } catch (err) {
+        alert("Network error: " + err.message);
+      }
+    };
   </script>
 </body>
 </html>
