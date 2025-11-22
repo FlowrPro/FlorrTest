@@ -328,11 +328,6 @@ socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
     hotbar.splice(0, hotbar.length, ...self.hotbar);
     renderInventory();
     renderHotbar();
-
-    // Assign default rarity to spawn petals
-    document.querySelectorAll("#hotbar .slot").forEach(slot => {
-      setSlotRarity(slot, "common");
-    });
   }
 
   players.forEach(p => (otherPlayers[p.id] = p));
