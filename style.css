@@ -11,7 +11,7 @@ canvas {
 
 /* Homescreen overlay */
 #homescreen {
-  position: absolute;
+  position: fixed;       /* ✅ anchor to viewport, not canvas */
   top: 0;
   left: 0;
   width: 100%;
@@ -21,7 +21,14 @@ canvas {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 100; /* above everything */
+  z-index: 100;          /* above everything */
+  opacity: 1;
+  transition: opacity 0.8s ease; /* smooth fade */
+}
+
+#homescreen.fade-out {
+  opacity: 0;
+  pointer-events: none;  /* prevent clicks during fade */
 }
 
 .game-title {
@@ -184,27 +191,7 @@ canvas {
 .slot.legendary, .inventory-item.legendary { background: red; }
 .slot.mythic, .inventory-item.mythic     { background: cyan; }
 .slot.ultra, .inventory-item.ultra       { background: red; }
-/* Homescreen overlay with fade */
-#homescreen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: green;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 100; /* above everything */
-  opacity: 1;
-  transition: opacity 0.8s ease; /* smooth fade */
-}
 
-#homescreen.fade-out {
-  opacity: 0;
-  pointer-events: none; /* prevent clicks during fade */
-}
 
 .slot {
   position: relative;
