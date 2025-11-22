@@ -258,7 +258,40 @@ async function loginAndConnect(username, password) {
     alert("Login failed: " + err.message);
   }
 }
+// Wire up login/register buttons here instead of index.html
+const registerBtn = document.getElementById("register-btn");
+const loginBtn = document.getElementById("login-btn");
 
+registerBtn.onclick = async () => {
+  const username = document.getElementById("auth-username").value.trim();
+  const password = document.getElementById("auth-password").value.trim();
+  if (!username || !password) return alert("Enter username and password");
+
+  try {
+    const res = await fetch("https://florrtest-backend-1.onrender.com/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert("Registered successfully! Now log in.");
+    } else {
+      alert("Error: " + data.error);
+    }
+  } catch (err) {
+    alert("Network error: " + err.message);
+  }
+};
+
+loginBtn.onclick = () => {
+  const username = document.getElementById("auth-username").value.trim();
+  const password = document.getElementById("auth-password").value.trim();
+  if (!username || !password) return alert("Enter username and password");
+
+  // ✅ Use the helper we defined above
+  loginAndConnect(username, password);
+};
 // Tabs
 const tabButtons = document.querySelectorAll(".tab-btn");
 const tabContents = document.querySelectorAll(".tab-content");
