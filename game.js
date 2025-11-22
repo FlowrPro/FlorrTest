@@ -319,18 +319,25 @@ function gameLoop() {
 }
 gameLoop();
 
-// --- Socket events ---
 socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
   world = w;
-  player = self || player; // keep default if self is null
+  player = self || player;
   items = its;
 
-  if (self) { // only update inventory/hotbar if player exists
+  if (self) {
     inventory.splice(0, inventory.length, ...self.inventory);
     hotbar.splice(0, hotbar.length, ...self.hotbar);
     renderInventory();
     renderHotbar();
+
+    // Assign default rarity to spawn petals
+    document.querySelectorAll("#hotbar .slot").forEach(slot => {
+      setSlotRarity(slot, "common");
+    });
   }
+
+  players.forEach(p => (otherPlayers[p.id] = p));
+});
 
   players.forEach(p => (otherPlayers[p.id] = p));
 });
@@ -400,14 +407,7 @@ if (playBtn) {
       alert("Please enter a username!");
       return;
     }
-  // Mark all spawn petals as common
-document.querySelectorAll("#hotbar .slot").forEach(slot => {
-  setSlotRarity(slot, "common");
-});
 
-// Upgrade slot 1 to rare
-const slot1 = document.querySelector("#hotbar .slot:nth-child(1)");
-setSlotRarity(slot1, "rare");
     
     const homescreen = document.getElementById("homescreen");
     homescreen.classList.add("fade-out");
