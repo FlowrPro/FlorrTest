@@ -12,7 +12,8 @@ window.addEventListener("resize", resizeCanvas);
 
 const socket = io("https://florrtest-backend-1.onrender.com"); 
 setSocket(socket);
-// Chat elements
+// --- CHAT SETUP ---
+// Grab chat elements
 const chatInput = document.getElementById("chat-input");
 const chatMessages = document.getElementById("chat-messages");
 
@@ -20,11 +21,20 @@ const chatMessages = document.getElementById("chat-messages");
 chatInput.addEventListener("keydown", e => {
   if (e.key === "Enter" && chatInput.value.trim() !== "") {
     const text = chatInput.value.trim();
-    const username = document.getElementById("username").value || "Anonymous";
-    socket.emit("chat_message", { username, text });
+    socket.emit("chat_message", { text }); // only send text
     chatInput.value = "";
   }
 });
+
+// Receive messages
+socket.on("chat_message", ({ username, text }) => {
+  const msg = document.createElement("div");
+  msg.className = "chat-msg";
+  msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
 
 // Receive messages
 socket.on("chat_message", ({ username, text }) => {
