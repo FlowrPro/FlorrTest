@@ -1,4 +1,4 @@
-export const inventory = new Array(24).fill(null);
+export const inventory = []; // start empty, push items as needed
 export const hotbar = new Array(10).fill(null);
 
 const invEl = document.getElementById("inventory");
@@ -44,22 +44,19 @@ export function renderInventory() {
   invEl.innerHTML = "";
   inventory.forEach((item, i) => {
     const slot = document.createElement("div");
-    slot.className = "slot";
+    slot.className = "inventory-item"; // use new CSS class
     slot.dataset.index = i;
     slot.dataset.type = "inventory";
 
     if (item) {
       slot.appendChild(makeIcon(item));
       setSlotRarity(slot, item.rarity);
-    } else {
-      setSlotRarity(slot, null); // ensure no leftover rarity class
     }
 
     slot.draggable = !!item;
     slot.ondragstart = e => {
       e.dataTransfer.setData("index", i);
       e.dataTransfer.setData("type", "inventory");
-      // Prevent ghost image
       const img = new Image();
       img.src =
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAn0B9Z0QjJkAAAAASUVORK5CYII=";
