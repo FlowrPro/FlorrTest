@@ -18,29 +18,25 @@ function connectToGame() {
   const username = localStorage.getItem("username");
 
   if (!token || !username) {
-    // Show homescreen (login/register panel stays visible)
     document.getElementById("homescreen").style.display = "block";
     return;
   }
 
   socket = io("https://florrtest-backend-1.onrender.com");
 
-  // FIX: send both token and username
+  // Send both token and username
   socket.emit("auth", { token, username });
 
   socket.on("auth_success", (data) => {
     console.log("Authenticated as:", data.username);
 
-    // Hide homescreen once authenticated
     document.getElementById("homescreen").style.display = "none";
 
-    // Spawn player only after auth
     socket.emit("set_username", { username: data.username });
 
-    // Pass socket into inventory system
     setSocket(socket);
 
-    // --- Attach all socket listeners here ---
+    // Chat listener
     socket.on("chat_message", ({ username, text }) => {
       const msg = document.createElement("div");
       msg.className = "chat-msg";
@@ -51,8 +47,6 @@ function connectToGame() {
         chatMessages.removeChild(chatMessages.firstChild);
       }
     });
-
-    // … keep the rest of your listeners unchanged …
   });
 
   socket.on("auth_failed", () => {
@@ -61,21 +55,31 @@ function connectToGame() {
     localStorage.removeItem("username");
     document.getElementById("homescreen").style.display = "block";
   });
-  socket.on("disconnect", () => {
-  // Reset UI
-  document.getElementById("homescreen").style.display = "block";
-  document.getElementById("death-screen").classList.add("hidden");
-  document.getElementById("gameCanvas").classList.remove("blurred");
-  otherPlayers = {};
-  player = { id: null, x: 0, y: 0, hotbar: [], health: 100 };
-});
-}
 
-    // World snapshot
-    socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
-      world = w;
-      player = self || player;
-      items = its;
+  socket.on("disconnect", () => {
+    document.getElementById("homescreen").style.display = "block";
+    document.getElementById("death-screen").classList.add("hidden");
+    document.getElementById("gameCanvas").classList.remove("blurred");
+    otherPlayers = {};
+    player = { id: null, x: 0, y: 0, hotbar: [], health: 100 };
+  });
+
+  // World snapshot listener MUST be inside connectToGame
+  socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
+    world = w;
+    player = self || player;
+    items = its;
+
+    if (self) {
+      inventory.splice(0, inventory.length, ...self.inventory);
+      hotbar.splice(0, hotbar.length, ...self.hotbar);
+      renderInventory();
+      renderHotbar();
+    }
+
+    players.forEach(p => (otherPlayers[p.id] = p));
+  });
+}
 
       if (self) {
         inventory.splice(0, inventory.length, ...self.inventory);
