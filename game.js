@@ -12,6 +12,28 @@ window.addEventListener("resize", resizeCanvas);
 
 const socket = io("https://florrtest-backend-1.onrender.com"); 
 setSocket(socket);
+// Chat elements
+const chatInput = document.getElementById("chat-input");
+const chatMessages = document.getElementById("chat-messages");
+
+// Send message on Enter
+chatInput.addEventListener("keydown", e => {
+  if (e.key === "Enter" && chatInput.value.trim() !== "") {
+    const text = chatInput.value.trim();
+    const username = document.getElementById("username").value || "Anonymous";
+    socket.emit("chat_message", { username, text });
+    chatInput.value = "";
+  }
+});
+
+// Receive messages
+socket.on("chat_message", ({ username, text }) => {
+  const msg = document.createElement("div");
+  msg.className = "chat-msg";
+  msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
 
 let player = { 
   id: null, 
