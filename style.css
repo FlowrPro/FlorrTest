@@ -158,7 +158,14 @@ canvas {
   background: white; /* basic petal color */
   box-shadow: 0 0 6px rgba(255,255,255,0.8);
 }
-
+/* Apply rarity backgrounds to both hotbar slots and inventory items */
+.slot.common, .inventory-item.common     { background: green; }
+.slot.unusual, .inventory-item.unusual   { background: yellow; }
+.slot.rare, .inventory-item.rare         { background: blue; }
+.slot.epic, .inventory-item.epic         { background: purple; }
+.slot.legendary, .inventory-item.legendary { background: red; }
+.slot.mythic, .inventory-item.mythic     { background: cyan; }
+.slot.ultra, .inventory-item.ultra       { background: red; }
 /* Homescreen overlay with fade */
 #homescreen {
   position: absolute;
