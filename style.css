@@ -89,17 +89,29 @@ canvas {
 
 #inventory {
   position: absolute;
-  top: 60px; /* adjust to appear below settings button */
+  top: 120px;          /* move it further down */
   left: 10px;
   background: rgba(30,30,30,0.95);
   border: 2px solid #aaa;
   border-radius: 8px;
   padding: 10px;
+  width: 280px;        /* fixed width for square look */
+  min-height: 200px;   /* ensures it looks like a box even when empty */
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  grid-template-columns: repeat(6, 50px); /* 6 columns grid */
   grid-gap: 8px;
-  max-width: 300px;
   z-index: 500;
+}
+
+/* Add a header above the grid */
+#inventory::before {
+  content: "Inventory";
+  display: block;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  margin-bottom: 8px;
 }
 .inventory-item {
   width: 50px;
