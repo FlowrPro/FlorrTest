@@ -38,12 +38,10 @@
 
   <!-- Hotbar bottom center -->
   <div id="hotbar">
-    <!-- Example slot with rarity applied -->
     <!-- Slots will be filled dynamically in game.js -->
-    <!-- <div class="slot common"><div class="icon basic-petal"></div></div> -->
   </div>
 
-  <!-- Inventory toggle button styled like a slot with a basic petal -->
+  <!-- Inventory toggle button (moved above chat box) -->
   <button id="invToggle" class="slot common">
     <div class="icon basic-petal"></div>
   </button>
@@ -59,9 +57,41 @@
     </div>
   </div>
 
+  <!-- Chat box bottom-left -->
+  <div id="chat-container">
+    <div id="chat-messages"></div>
+    <input id="chat-input" type="text" placeholder="Type a message..." />
+  </div>
+
   <!-- Load Socket.IO client first -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <!-- Then load your game code -->
   <script type="module" src="game.js"></script>
+
+  <!-- Chat logic -->
+  <script>
+    const socket = io();
+
+    const chatInput = document.getElementById("chat-input");
+    const chatMessages = document.getElementById("chat-messages");
+
+    chatInput.addEventListener("keydown", e => {
+      if (e.key === "Enter" && chatInput.value.trim() !== "") {
+        const text = chatInput.value.trim();
+        // Emit to server with username
+        const username = document.getElementById("username").value || "Anonymous";
+        socket.emit("chat_message", { username, text });
+        chatInput.value = "";
+      }
+    });
+
+    socket.on("chat_message", ({ username, text }) => {
+      const msg = document.createElement("div");
+      msg.className = "chat-msg";
+      msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+  </script>
 </body>
 </html>
