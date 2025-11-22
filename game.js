@@ -12,6 +12,7 @@ window.addEventListener("resize", resizeCanvas);
 
 const socket = io("https://florrtest-backend-1.onrender.com"); 
 setSocket(socket);
+
 // --- CHAT SETUP ---
 const chatInput = document.getElementById("chat-input");
 const chatMessages = document.getElementById("chat-messages");
