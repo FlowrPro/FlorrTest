@@ -33,7 +33,6 @@ function connectToGame() {
     document.getElementById("homescreen").style.display = "none";
 
     socket.emit("set_username", { username: data.username });
-
     setSocket(socket);
 
     // Chat listener
@@ -64,7 +63,7 @@ function connectToGame() {
     player = { id: null, x: 0, y: 0, hotbar: [], health: 100 };
   });
 
-  // World snapshot listener MUST be inside connectToGame
+  // World snapshot
   socket.on("world_snapshot", ({ world: w, self, players, items: its }) => {
     world = w;
     player = self || player;
@@ -79,62 +78,54 @@ function connectToGame() {
 
     players.forEach(p => (otherPlayers[p.id] = p));
   });
-}
 
-    // Items update
-    socket.on("items_update", its => { items = its; });
+  // Items update
+  socket.on("items_update", its => { items = its; });
 
-    // Inventory update
-    socket.on("inventory_update", inv => {
-      inventory.splice(0, inventory.length, ...inv);
-      renderInventory();
-    });
-
-    // Hotbar update
-    socket.on("hotbar_update", hb => {
-      hotbar.splice(0, hotbar.length, ...hb);
-      renderHotbar();
-    });
-
-    // Player update
-    socket.on("player_update", p => {
-      if (p.id === socket.id) {
-        player.x = p.x;
-        player.y = p.y;
-        player.orbitAngle = p.orbitAngle;
-        player.orbitDist = p.orbitDist;
-        player.hotbar = [...p.hotbar];
-        hotbar.splice(0, hotbar.length, ...p.hotbar);
-        player.username = p.username;
-      } else {
-        otherPlayers[p.id] = p;
-      }
-    });
-
-    // Join/leave
-    socket.on("player_join", p => { otherPlayers[p.id] = p; });
-    socket.on("player_leave", ({ id }) => { delete otherPlayers[id]; });
-
-    // Death screen events
-    socket.on("player_dead", () => {
-      const deathScreen = document.getElementById("death-screen");
-      deathScreen.classList.add("show");
-      document.getElementById("gameCanvas").classList.add("blurred");
-    });
-
-    socket.on("respawn_success", () => {
-      const deathScreen = document.getElementById("death-screen");
-      deathScreen.classList.remove("show");
-      document.getElementById("gameCanvas").classList.remove("blurred");
-    });
-
-  socket.on("auth_failed", () => {
-    alert("Authentication failed. Please try again.");
-    localStorage.removeItem("sessionToken");
-    localStorage.removeItem("username");
-    document.getElementById("homescreen").style.display = "block";
+  // Inventory update
+  socket.on("inventory_update", inv => {
+    inventory.splice(0, inventory.length, ...inv);
+    renderInventory();
   });
 
+  // Hotbar update
+  socket.on("hotbar_update", hb => {
+    hotbar.splice(0, hotbar.length, ...hb);
+    renderHotbar();
+  });
+
+  // Player update
+  socket.on("player_update", p => {
+    if (p.id === socket.id) {
+      player.x = p.x;
+      player.y = p.y;
+      player.orbitAngle = p.orbitAngle;
+      player.orbitDist = p.orbitDist;
+      player.hotbar = [...p.hotbar];
+      hotbar.splice(0, hotbar.length, ...p.hotbar);
+      player.username = p.username;
+    } else {
+      otherPlayers[p.id] = p;
+    }
+  });
+
+  // Join/leave
+  socket.on("player_join", p => { otherPlayers[p.id] = p; });
+  socket.on("player_leave", ({ id }) => { delete otherPlayers[id]; });
+
+  // Death screen events
+  socket.on("player_dead", () => {
+    const deathScreen = document.getElementById("death-screen");
+    deathScreen.classList.add("show");
+    document.getElementById("gameCanvas").classList.add("blurred");
+  });
+
+  socket.on("respawn_success", () => {
+    const deathScreen = document.getElementById("death-screen");
+    deathScreen.classList.remove("show");
+    document.getElementById("gameCanvas").classList.remove("blurred");
+  });
+} // 👈 single closing brace here
 window.onload = connectToGame;
 
 // --- CHAT SETUP ---
