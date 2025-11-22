@@ -296,7 +296,6 @@ canvas {
 .gear-icon span:nth-child(4) { transform: translate(-50%, -50%) rotate(270deg) translateX(10px); }
 
 
-/* Settings panel styled like florr.io */
 #settings-panel {
   position: absolute;
   background: rgba(30, 30, 30, 0.95);
