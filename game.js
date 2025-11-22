@@ -394,7 +394,6 @@ if (respawnBtn) {
   });
 }
 
-// --- Homescreen Play Button ---
 const playBtn = document.getElementById("play-btn");
 if (playBtn) {
   playBtn.addEventListener("click", () => {
@@ -405,7 +404,6 @@ if (playBtn) {
       return;
     }
 
-    
     const homescreen = document.getElementById("homescreen");
     homescreen.classList.add("fade-out");
 
