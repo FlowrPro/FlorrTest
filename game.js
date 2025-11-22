@@ -9,8 +9,43 @@ function resizeCanvas() {
 }
 resizeCanvas(); // initial call
 window.addEventListener("resize", resizeCanvas);
-const socket = io("https://florrtest-backend-1.onrender.com"); 
-setSocket(socket);
+let socket; // declare globally so other code can use it
+
+function connectToGame() {
+  const token = localStorage.getItem("sessionToken");
+  const username = localStorage.getItem("username");
+
+  if (!token || !username) {
+    alert("You must log in first!");
+    window.location.href = "/login.html";
+    return;
+  }
+
+  socket = io("https://florrtest-backend-1.onrender.com");
+  socket.emit("auth", { token });
+
+  socket.on("auth_success", (data) => {
+    console.log("Authenticated as:", data.username);
+
+    // Spawn player only after auth
+    socket.emit("set_username", { username: data.username });
+
+    // Pass socket into inventory system
+    setSocket(socket);
+
+    // All your existing socket.on(...) listeners will still work
+  });
+
+  socket.on("auth_failed", () => {
+    alert("Authentication failed. Please log in again.");
+    localStorage.removeItem("sessionToken");
+    localStorage.removeItem("username");
+    window.location.href = "/login.html";
+  });
+}
+
+// Run when page loads
+window.onload = connectToGame;
 
 // --- CHAT SETUP ---
 const chatInput = document.getElementById("chat-input");
@@ -506,8 +541,8 @@ if (playBtn) {
     homescreen.classList.add("fade-out");
 
     setTimeout(() => {
-      homescreen.style.display = "none";
-      socket.emit("set_username", { username });
-    }, 800); // matches CSS transition duration
+  homescreen.style.display = "none";
+  // No need to emit set_username here — it happens after auth_success
+}, 800);
   });
 }
