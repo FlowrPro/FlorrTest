@@ -75,42 +75,5 @@
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <!-- Game logic -->
   <script type="module" src="game.js"></script>
-
-  <!-- Inline auth logic -->
-  <script>
-    const registerBtn = document.getElementById("register-btn");
-    const loginBtn = document.getElementById("login-btn");
-
-    registerBtn.onclick = async () => {
-      const username = document.getElementById("auth-username").value.trim();
-      const password = document.getElementById("auth-password").value.trim();
-      if (!username || !password) return alert("Enter username and password");
-
-      try {
-        const res = await fetch("https://florrtest-backend-1.onrender.com/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert("Registered successfully! Now log in.");
-        } else {
-          alert("Error: " + data.error);
-        }
-      } catch (err) {
-        alert("Network error: " + err.message);
-      }
-    };
-
-    loginBtn.onclick = () => {
-      const username = document.getElementById("auth-username").value.trim();
-      const password = document.getElementById("auth-password").value.trim();
-      if (!username || !password) return alert("Enter username and password");
-
-      // ✅ Call the helper defined in game.js
-      loginAndConnect(username, password);
-    };
-  </script>
 </body>
 </html>
