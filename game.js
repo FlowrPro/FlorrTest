@@ -40,16 +40,6 @@ socket.on("chat_message", ({ username, text }) => {
 });
 
 
-
-// Receive messages
-socket.on("chat_message", ({ username, text }) => {
-  const msg = document.createElement("div");
-  msg.className = "chat-msg";
-  msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
-  chatMessages.appendChild(msg);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-
 let player = { 
   id: null, 
   x: 0, 
