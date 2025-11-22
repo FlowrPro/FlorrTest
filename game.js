@@ -81,13 +81,6 @@ function connectToGame() {
   });
 }
 
-      if (self) {
-        inventory.splice(0, inventory.length, ...self.inventory);
-        hotbar.splice(0, hotbar.length, ...self.hotbar);
-        renderInventory();
-        renderHotbar();
-      }
-
       players.forEach(p => (otherPlayers[p.id] = p));
     });
 
