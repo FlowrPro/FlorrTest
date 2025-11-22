@@ -111,21 +111,20 @@ function toggleInventory() {
   document.getElementById("inventory").classList.toggle("hidden");
 }
 
-// --- Settings toggle ---
 const settingsBtn = document.getElementById("settings-btn");
 const settingsPanel = document.getElementById("settings-panel");
 const closeSettings = document.getElementById("close-settings");
 
-if (settingsBtn) {
-  settingsBtn.addEventListener("click", () => {
-    settingsPanel.classList.toggle("show");
-  });
-}
-if (closeSettings) {
-  closeSettings.addEventListener("click", () => {
-    settingsPanel.classList.remove("show");
-  });
-}
+settingsBtn.addEventListener("click", () => {
+  const rect = settingsBtn.getBoundingClientRect();
+  settingsPanel.style.top = `${rect.bottom + 8}px`;
+  settingsPanel.style.left = `${rect.left}px`;
+  settingsPanel.classList.toggle("show");
+});
+
+closeSettings.addEventListener("click", () => {
+  settingsPanel.classList.remove("show");
+});
 
 
 // --- Mouse movement toggle ---
