@@ -1,8 +1,8 @@
 import { inventory, hotbar, renderInventory, renderHotbar, setSocket } from "./inventory.js";
-
+import { setSocket as setMobSocket, setContext as setMobContext, renderMobs } from "./mob.js";
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-
+setMobContext(ctx);
 // --- Fullscreen canvas setup ---
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -36,7 +36,7 @@ socket.on("connect", () => {
 
     socket.emit("set_username", { username: data.username });
     setSocket(socket);
-
+    setMobSocket(socket);
     // Chat listener
     socket.on("chat_message", ({ username, text }) => {
       const msg = document.createElement("div");
@@ -549,7 +549,7 @@ function draw() {
     ctx.fillStyle = item.color;
     ctx.fill();
   });
-
+  renderMobs();
   // --- Minimap ---
   const mapWidth = 200;
   const mapHeight = 100;
