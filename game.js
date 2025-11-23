@@ -549,7 +549,7 @@ function draw() {
     ctx.fillStyle = item.color;
     ctx.fill();
   });
-  renderMobs();
+  renderMobs(player);
   // --- Minimap ---
   const mapWidth = 200;
   const mapHeight = 100;
