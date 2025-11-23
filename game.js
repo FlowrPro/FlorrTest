@@ -390,9 +390,36 @@ function update() {
     }
   });
 
+  // --- Petal collisions ---
+  petals.forEach(petal => {
+    // Petal vs Player
+    const distPlayer = Math.hypot(player.x - petal.x, player.y - petal.y);
+    if (distPlayer < player.radius + petal.radius) {
+      player.health -= petal.damage;
+      petal.health -= player.damage;
+    }
+
+    // Petal vs Other Players
+    Object.values(otherPlayers).forEach(p => {
+      const distOther = Math.hypot(p.x - petal.x, p.y - petal.y);
+      if (distOther < p.radius + petal.radius) {
+        p.health -= petal.damage;
+        petal.health -= p.damage;
+      }
+    });
+
+    // Petal vs Mobs
+    mobs.forEach(mob => {
+      const distMob = Math.hypot(mob.x - petal.x, mob.y - petal.y);
+      if (distMob < mob.radius + petal.radius) {
+        mob.health -= petal.damage;   // mob takes petal damage
+        petal.health -= mob.damage;   // petal loses mob’s damage value
+      }
+    });
+  });
+
   updateCamera(); // update camera each frame
 }
-
 // --- Drawing ---
 function drawPlayer(p) {
   // Body
