@@ -1,4 +1,3 @@
-
 export let mobs = []; // dynamic mob list
 
 let ctx = null; // canvas context
@@ -12,6 +11,11 @@ export function setSocket(s) {
   socket = s;
   socket.on("mobs_update", mobList => {
     mobs = mobList;
+  });
+
+  // NEW: remove mob when backend says it's dead
+  socket.on("mob_dead", ({ id }) => {
+    mobs = mobs.filter(m => m.id !== id);
   });
 }
 
