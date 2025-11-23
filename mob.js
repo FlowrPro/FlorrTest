@@ -10,7 +10,11 @@ let socket = null;
 export function setSocket(s) {
   socket = s;
   socket.on("mobs_update", mobList => {
-    mobs = mobList;
+    // initialize facingAngle for new mobs
+    mobs = mobList.map(m => ({
+      ...m,
+      facingAngle: m.facingAngle || 0
+    }));
   });
 
   // NEW: remove mob when backend says it's dead
@@ -24,30 +28,13 @@ export function setSocket(s) {
 const mobImage = new Image();
 mobImage.src = "/assets/mob.png"; // path to your uploaded image
 
-export function drawMob(m, player) {
+export function drawMob(m) {
   if (!ctx) return;
 
-  // initialize facingAngle if missing
-  if (m.facingAngle === undefined) m.facingAngle = 0;
-
-  if (mobImage.complete && player) {
-    const dx = player.x - m.x;
-    const dy = player.y - m.y;
-    const targetAngle = Math.atan2(dy, dx);
-
-    // Smoothly rotate toward target
-    const turnSpeed = 0.25; // increase for faster turning
-    let diff = targetAngle - m.facingAngle;
-
-    // normalize angle difference
-    while (diff > Math.PI) diff -= 2 * Math.PI;
-    while (diff < -Math.PI) diff += 2 * Math.PI;
-
-    m.facingAngle += diff * turnSpeed;
-
+  if (mobImage.complete) {
     ctx.save();
     ctx.translate(m.x, m.y);
-    ctx.rotate(m.facingAngle);
+    ctx.rotate(m.facingAngle || 0); // use stored angle
     ctx.drawImage(mobImage, -m.radius, -m.radius, m.radius * 2, m.radius * 2);
     ctx.restore();
   } else {
@@ -86,7 +73,6 @@ export function drawMob(m, player) {
 }
 
 // --- Draw all mobs ---
-// You must pass in the local player so mobs can rotate toward them
 export function renderMobs(player) {
-  mobs.forEach(m => drawMob(m, player));
+  mobs.forEach(m => drawMob(m));
 }
