@@ -1,4 +1,4 @@
-// mob.js
+
 export let mobs = []; // dynamic mob list
 
 let ctx = null; // canvas context
