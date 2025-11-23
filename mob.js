@@ -22,14 +22,21 @@ export function setSocket(s) {
 // --- Rendering ---
 // Load mob image once
 const mobImage = new Image();
-mobImage.src = "/assets/mob.png"; // path to my uploaded image
+mobImage.src = "/assets/mob.png"; // path to your uploaded image
 
-export function drawMob(m) {
+export function drawMob(m, player) {
   if (!ctx) return;
 
-  if (mobImage.complete) {
-    // Draw image centered at mob position
-    ctx.drawImage(mobImage, m.x - m.radius, m.y - m.radius, m.radius * 2, m.radius * 2);
+  if (mobImage.complete && player) {
+    const dx = player.x - m.x;
+    const dy = player.y - m.y;
+    const angle = Math.atan2(dy, dx); // angle from mob to player
+
+    ctx.save();
+    ctx.translate(m.x, m.y);       // move origin to mob center
+    ctx.rotate(angle);             // rotate canvas toward player
+    ctx.drawImage(mobImage, -m.radius, -m.radius, m.radius * 2, m.radius * 2);
+    ctx.restore();
   } else {
     // fallback circle until image loads
     ctx.beginPath();
@@ -66,6 +73,7 @@ export function drawMob(m) {
 }
 
 // --- Draw all mobs ---
-export function renderMobs() {
-  mobs.forEach(drawMob);
+// You must pass in the local player so mobs can rotate toward them
+export function renderMobs(player) {
+  mobs.forEach(m => drawMob(m, player));
 }
