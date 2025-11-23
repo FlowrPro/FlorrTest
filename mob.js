@@ -22,7 +22,7 @@ export function setSocket(s) {
 // --- Rendering ---
 // Load mob image once
 const mobImage = new Image();
-mobImage.src = "/assets/mob.png"; // path to your uploaded image
+mobImage.src = "/assets/mobv2.png"; // path to your uploaded image
 
 export function drawMob(m) {
   if (!ctx) return;
