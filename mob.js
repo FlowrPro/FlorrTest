@@ -27,14 +27,27 @@ mobImage.src = "/assets/mob.png"; // path to your uploaded image
 export function drawMob(m, player) {
   if (!ctx) return;
 
+  // initialize facingAngle if missing
+  if (m.facingAngle === undefined) m.facingAngle = 0;
+
   if (mobImage.complete && player) {
     const dx = player.x - m.x;
     const dy = player.y - m.y;
-    const angle = Math.atan2(dy, dx); // angle from mob to player
+    const targetAngle = Math.atan2(dy, dx);
+
+    // Smoothly rotate toward target
+    const turnSpeed = 0.25; // increase for faster turning
+    let diff = targetAngle - m.facingAngle;
+
+    // normalize angle difference
+    while (diff > Math.PI) diff -= 2 * Math.PI;
+    while (diff < -Math.PI) diff += 2 * Math.PI;
+
+    m.facingAngle += diff * turnSpeed;
 
     ctx.save();
-    ctx.translate(m.x, m.y);       // move origin to mob center
-    ctx.rotate(angle);             // rotate canvas toward player
+    ctx.translate(m.x, m.y);
+    ctx.rotate(m.facingAngle);
     ctx.drawImage(mobImage, -m.radius, -m.radius, m.radius * 2, m.radius * 2);
     ctx.restore();
   } else {
