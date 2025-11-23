@@ -70,6 +70,15 @@ export function drawMob(m) {
   ctx.strokeStyle = "white";
   ctx.lineWidth = 1;
   ctx.strokeRect(x, y, barWidth, barHeight);
+
+  // --- Hitbox overlay (toggle from game.js) ---
+  if (typeof showHitboxesEnabled === "function" && showHitboxesEnabled()) {
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
 }
 
 // --- Draw all mobs ---
