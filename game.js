@@ -534,6 +534,7 @@ function draw() {
   ctx.strokeStyle = "#0f0";
   ctx.lineWidth = 3;
   ctx.strokeRect(0, 0, world.width, world.height);
+  renderMobs(player);
 
   // --- Draw players/items in world ---
   if (player.id) {
@@ -584,6 +585,7 @@ function draw() {
     ctx.arc(ox, oy, 3, 0, Math.PI * 2);
     ctx.fill();
   });
+  
 }
 
 // --- Loop ---
