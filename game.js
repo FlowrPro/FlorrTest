@@ -541,15 +541,6 @@ function draw() {
 
   // --- Draw mobs ---
   renderMobs(player);
-  if (showHitboxesEnabled()) {
-    mobs.forEach(m => {
-      ctx.beginPath();
-      ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
-      ctx.strokeStyle = "red";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    });
-  }
 
   // --- Draw players/items in world ---
   if (player.id) {
