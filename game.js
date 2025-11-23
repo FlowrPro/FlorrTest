@@ -572,22 +572,10 @@ function draw() {
   // --- Draw players/items in world ---
   if (player.id) {
     drawPlayer(player);
-    if (showHitboxesEnabled()) {
-      ctx.beginPath();
-      ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-      ctx.strokeStyle = "red";
-      ctx.stroke();
-    }
   }
 
   Object.values(otherPlayers).forEach(p => {
     drawPlayer(p);
-    if (showHitboxesEnabled()) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.strokeStyle = "red";
-      ctx.stroke();
-    }
   });
 
   items.forEach(item => {
@@ -595,11 +583,6 @@ function draw() {
     ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
     ctx.fillStyle = item.color;
     ctx.fill();
-
-    if (showHitboxesEnabled()) {
-      ctx.strokeStyle = "red";
-      ctx.stroke();
-    }
   });
 
   // --- Minimap ---
