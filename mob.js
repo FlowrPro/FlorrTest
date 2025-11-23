@@ -20,16 +20,26 @@ export function setSocket(s) {
 }
 
 // --- Rendering ---
+// Load mob image once
+const mobImage = new Image();
+mobImage.src = "/assets/mob.png"; // path to your uploaded image
+
 export function drawMob(m) {
   if (!ctx) return;
 
-  ctx.beginPath();
-  ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
-  ctx.fillStyle = m.color || "purple";
-  ctx.fill();
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = "black";
-  ctx.stroke();
+  if (mobImage.complete) {
+    // Draw image centered at mob position
+    ctx.drawImage(mobImage, m.x - m.radius, m.y - m.radius, m.radius * 2, m.radius * 2);
+  } else {
+    // fallback circle until image loads
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+    ctx.fillStyle = m.color || "purple";
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    ctx.stroke();
+  }
 
   // Draw rarity label above mob
   ctx.fillStyle = "white";
