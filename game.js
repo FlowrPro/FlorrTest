@@ -12,7 +12,11 @@ resizeCanvas(); // initial call
 window.addEventListener("resize", resizeCanvas);
 
 let socket; // declare globally so other code can use it
+const toggleHitboxes = document.getElementById("toggle-hitboxes");
 
+function showHitboxesEnabled() {
+  return toggleHitboxes.checked;
+}
 function connectToGame() {
   const token = localStorage.getItem("sessionToken");
   const username = localStorage.getItem("username");
@@ -534,14 +538,38 @@ function draw() {
   ctx.strokeStyle = "#0f0";
   ctx.lineWidth = 3;
   ctx.strokeRect(0, 0, world.width, world.height);
+
+  // --- Draw mobs ---
   renderMobs(player);
+  if (showHitboxesEnabled()) {
+    mobs.forEach(m => {
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+  }
 
   // --- Draw players/items in world ---
   if (player.id) {
     drawPlayer(player);
+    if (showHitboxesEnabled()) {
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+      ctx.strokeStyle = "red";
+      ctx.stroke();
+    }
   }
+
   Object.values(otherPlayers).forEach(p => {
     drawPlayer(p);
+    if (showHitboxesEnabled()) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.strokeStyle = "red";
+      ctx.stroke();
+    }
   });
 
   items.forEach(item => {
@@ -549,8 +577,13 @@ function draw() {
     ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
     ctx.fillStyle = item.color;
     ctx.fill();
+
+    if (showHitboxesEnabled()) {
+      ctx.strokeStyle = "red";
+      ctx.stroke();
+    }
   });
-  renderMobs(player);
+
   // --- Minimap ---
   const mapWidth = 200;
   const mapHeight = 100;
@@ -585,7 +618,6 @@ function draw() {
     ctx.arc(ox, oy, 3, 0, Math.PI * 2);
     ctx.fill();
   });
-  
 }
 
 // --- Loop ---
