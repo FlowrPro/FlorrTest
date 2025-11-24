@@ -47,18 +47,19 @@ socket.on("chat_message", ({ username, text, isAdmin }) => {
   msg.className = "chat-msg";
 
   // ✅ Admin styling
-  if (isAdmin) {
-    msg.innerHTML = `<span class="chat-user" style="color:red; font-weight:bold;">${username}:</span> <span style="color:red;">${text}</span>`;
-  } else {
-    msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
-  }
+  // ✅ Admin styling
+if (isAdmin) {
+  msg.innerHTML = `<span class="chat-user" style="color:red; font-weight:bold;">${username}:</span> <span style="color:red;">${text}</span>`;
+} else {
+  msg.innerHTML = `<span class="chat-user" style="color:white;">${username}:</span> <span style="color:white;">${text}</span>`;
+}
 
-  chatMessages.appendChild(msg);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+chatMessages.appendChild(msg);
+chatMessages.scrollTop = chatMessages.scrollHeight;
 
-  while (chatMessages.children.length > 6) {
-    chatMessages.removeChild(chatMessages.firstChild);
-  }
+while (chatMessages.children.length > 6) {
+  chatMessages.removeChild(chatMessages.firstChild);
+}
 });
   });
 
