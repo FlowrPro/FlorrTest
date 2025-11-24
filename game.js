@@ -41,17 +41,25 @@ socket.on("connect", () => {
     socket.emit("set_username", { username: data.username });
     setSocket(socket);
     setMobSocket(socket);
-    // Chat listener
-    socket.on("chat_message", ({ username, text }) => {
-      const msg = document.createElement("div");
-      msg.className = "chat-msg";
-      msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      while (chatMessages.children.length > 6) {
-        chatMessages.removeChild(chatMessages.firstChild);
-      }
-    });
+   // Chat listener
+socket.on("chat_message", ({ username, text, isAdmin }) => {
+  const msg = document.createElement("div");
+  msg.className = "chat-msg";
+
+  // ✅ Admin styling
+  if (isAdmin) {
+    msg.innerHTML = `<span class="chat-user" style="color:red; font-weight:bold;">${username}:</span> <span style="color:red;">${text}</span>`;
+  } else {
+    msg.innerHTML = `<span class="chat-user">${username}:</span> ${text}`;
+  }
+
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  while (chatMessages.children.length > 6) {
+    chatMessages.removeChild(chatMessages.firstChild);
+  }
+});
   });
 
   socket.on("auth_failed", ({ reason } = {}) => {
@@ -398,18 +406,38 @@ function drawPlayer(p) {
   // Body
   ctx.beginPath();
   ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "orange";
+
+  if (p.isAdmin) {
+    // ✅ Admin glow
+    ctx.fillStyle = "orange";       // keep base color
+    ctx.shadowColor = "red";        // glow color
+    ctx.shadowBlur = 20;            // glow intensity
+  } else {
+    ctx.fillStyle = "orange";
+    ctx.shadowBlur = 0;             // no glow
+  }
+
   ctx.fill();
   ctx.lineWidth = 3;
   ctx.strokeStyle = "yellow";
   ctx.stroke();
 
+  // Reset shadow so it doesn’t leak into other drawings
+  ctx.shadowBlur = 0;
+
   // Username above player
   if (p.username) {
-    ctx.fillStyle = "white";
+    ctx.fillStyle = p.isAdmin ? "red" : "white"; // ✅ admin username red
     ctx.font = "16px Arial";
     ctx.textAlign = "center";
     ctx.fillText(p.username, p.x, p.y - p.radius - 10);
+
+    // ✅ Extra ADMIN tag above username
+    if (p.isAdmin) {
+      ctx.fillStyle = "red";
+      ctx.font = "bold 14px Arial";
+      ctx.fillText("ADMIN", p.x, p.y - p.radius - 28);
+    }
   }
 
   // Health bar above player
@@ -422,7 +450,6 @@ function drawPlayer(p) {
     ctx.fillStyle = "black";
     ctx.fillRect(x, y, barWidth, barHeight);
 
-    // ✅ use p.maxHealth instead of hardcoded 100
     const healthPercent = Math.max(0, p.health) / (p.maxHealth || 100);
     ctx.fillStyle = "lime";
     ctx.fillRect(x, y, barWidth * healthPercent, barHeight);
@@ -490,6 +517,7 @@ function drawPlayer(p) {
   ctx.strokeStyle = "black";
   ctx.lineWidth = 2;
   ctx.stroke();
+}
 
   // Orbiting petals: only draw if alive and not reloading
   if (p.health > 0) {
