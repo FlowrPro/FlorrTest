@@ -493,3 +493,8 @@ canvas {
 .auth-container button:hover {
   background: #ffaa00;
 }
+.slot.ultra .icon,
+.inventory-item.ultra .icon {
+  box-shadow: 0 0 10px 4px rgba(255, 255, 0, 0.8); /* bright yellow glow */
+  border: 2px solid gold; /* optional border for extra pop */
+}
