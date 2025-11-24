@@ -398,7 +398,6 @@ function update() {
     }
   });
 
-  // ❌ Removed: Petal collisions (handled server-side)
 
   updateCamera(); // update camera each frame
 }
@@ -588,7 +587,7 @@ function draw() {
   });
 
  items.forEach(item => {
-  const radius = item.radius || 8;
+  const radius = item.radius || 16;
 
   if (item.image) {
     const img = new Image();
