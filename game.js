@@ -46,8 +46,8 @@ socket.on("chat_message", ({ username, text, isAdmin }) => {
   const msg = document.createElement("div");
   msg.className = "chat-msg";
 
-  // ✅ Admin styling
-  // ✅ Admin styling
+  
+  //  Admin styling
 if (isAdmin) {
   msg.innerHTML = `<span class="chat-user" style="color:red; font-weight:bold;">${username}:</span> <span style="color:red;">${text}</span>`;
 } else {
