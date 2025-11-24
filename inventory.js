@@ -1,4 +1,4 @@
-export const inventory = []; // dynamic inventory
+export const inventory = []; // now stores { item, count } objects
 export const hotbar = new Array(10).fill(null);
 
 const invEl = document.getElementById("inventory");
@@ -16,41 +16,45 @@ function setSlotRarity(slotElement, rarity) {
   if (rarity) slotElement.classList.add(rarity);
 }
 
-function makeIcon(item) {
+function makeIcon(slot) {
+  const { item, count } = slot;
   const icon = document.createElement("div");
   icon.className = "icon";
 
-  // Default circle style
   icon.style.width = "20px";
   icon.style.height = "20px";
-  icon.style.borderRadius = "50%";
-  icon.style.background = item?.color || "white";
+  icon.style.position = "relative";
+
+  if (item.image) {
+    icon.style.background = `url(${item.image}) center/cover no-repeat`;
+    icon.style.borderRadius = "0";
+  } else {
+    icon.style.background = item.color || "white";
+    icon.style.borderRadius = "50%";
+  }
+
   icon.style.boxShadow = "0 0 6px rgba(255,255,255,0.8)";
 
-  if (item) {
-    // ✅ If item has an image (like Bone), use it instead of background color
-    if (item.image) {
-      icon.style.background = `url(${item.image}) center/cover no-repeat`;
-      icon.style.borderRadius = "0"; // optional: square icon for images
-    }
+  const tooltip = document.createElement("div");
+  tooltip.className = "tooltip";
+  tooltip.innerHTML = `
+    <div class="tooltip-title">${item.name}</div>
+    <div class="tooltip-stat">Damage: <span>${item.damage}</span></div>
+    <div class="tooltip-stat">Health: <span>${item.health}/${item.maxHealth}</span></div>
+    <div class="tooltip-stat">Reload: <span>${(item.reload / 1000).toFixed(1)}s</span></div>
+    <div class="tooltip-stat">Rarity: <span>${item.rarity || "common"}</span></div>
+    <div class="tooltip-desc">${item.description}</div>
+  `;
+  if (item.name === "Bone") {
+    tooltip.innerHTML += `<div class="tooltip-stat">Bonus: +50% max health per Bone</div>`;
+  }
+  icon.appendChild(tooltip);
 
-    const tooltip = document.createElement("div");
-    tooltip.className = "tooltip";
-    tooltip.innerHTML = `
-      <div class="tooltip-title">${item.name}</div>
-      <div class="tooltip-stat">Damage: <span>${item.damage}</span></div>
-      <div class="tooltip-stat">Health: <span>${item.health}/${item.maxHealth}</span></div>
-      <div class="tooltip-stat">Reload: <span>${(item.reload / 1000).toFixed(1)}s</span></div>
-      <div class="tooltip-stat">Rarity: <span>${item.rarity || "common"}</span></div>
-      <div class="tooltip-desc">${item.description}</div>
-    `;
-
-    // ✅ Add Bone bonus line
-    if (item.name === "Bone") {
-      tooltip.innerHTML += `<div class="tooltip-stat">Bonus: +50% max health per Bone</div>`;
-    }
-
-    icon.appendChild(tooltip);
+  if (count > 1) {
+    const badge = document.createElement("div");
+    badge.className = "count-badge";
+    badge.textContent = `x${count}`;
+    icon.appendChild(badge);
   }
 
   return icon;
@@ -58,19 +62,20 @@ function makeIcon(item) {
 
 export function renderInventory() {
   invEl.innerHTML = "";
-  inventory.forEach((item, i) => {
-    if (!item) return;
+  inventory.forEach((slot, i) => {
+    if (!slot) return;
 
-    const slot = document.createElement("div");
-    slot.className = "inventory-item";
-    slot.dataset.index = i;
-    slot.dataset.type = "inventory";
+    const { item, count } = slot;
+    const el = document.createElement("div");
+    el.className = "inventory-item";
+    el.dataset.index = i;
+    el.dataset.type = "inventory";
 
-    slot.appendChild(makeIcon(item));
-    setSlotRarity(slot, item.rarity);
+    el.appendChild(makeIcon(slot));
+    setSlotRarity(el, item.rarity);
 
-    slot.draggable = true;
-    slot.ondragstart = e => {
+    el.draggable = true;
+    el.ondragstart = e => {
       e.dataTransfer.setData("index", i);
       e.dataTransfer.setData("type", "inventory");
       const img = new Image();
@@ -79,7 +84,7 @@ export function renderInventory() {
       e.dataTransfer.setDragImage(img, 0, 0);
     };
 
-    invEl.appendChild(slot);
+    invEl.appendChild(el);
   });
 }
 
@@ -92,7 +97,7 @@ export function renderHotbar() {
     slot.dataset.type = "hotbar";
 
     if (item) {
-      slot.appendChild(makeIcon(item));
+      slot.appendChild(makeIcon({ item, count: 1 }));
       setSlotRarity(slot, item.rarity);
     } else {
       setSlotRarity(slot, null);
@@ -125,7 +130,6 @@ export function renderHotbar() {
   });
 }
 
-// Unequip from hotbar back to inventory
 invEl.ondragover = e => e.preventDefault();
 invEl.ondrop = e => {
   const fromIndex = e.dataTransfer.getData("index");
@@ -133,7 +137,17 @@ invEl.ondrop = e => {
   if (fromType === "hotbar") {
     const item = hotbar[fromIndex];
     if (item) {
-      inventory.push(item);
+      const existing = inventory.find(slot =>
+        slot && slot.item.name === item.name && slot.item.rarity === item.rarity
+      );
+      if (existing) {
+        existing.count += 1;
+      } else {
+        const emptyIdx = inventory.findIndex(s => s === null);
+        if (emptyIdx !== -1) {
+          inventory[emptyIdx] = { item: { ...item }, count: 1 };
+        }
+      }
       hotbar[fromIndex] = null;
       renderInventory();
       renderHotbar();
