@@ -21,12 +21,20 @@ function makeIcon(slot) {
   const icon = document.createElement("div");
   icon.className = "icon";
 
-  icon.style.width = "20px";
-  icon.style.height = "20px";
+  // ✅ Scale size dynamically
+  let size = 20;
+  if (item.name === "Bone") {
+    // Bone petals larger
+    const sizeByRarity = { common: 28, rare: 32, epic: 36, legendary: 40 };
+    size = sizeByRarity[item.rarity] || 28;
+  }
+
+  icon.style.width = `${size}px`;
+  icon.style.height = `${size}px`;
   icon.style.position = "relative";
 
   if (item.image) {
-    icon.style.background = `url(${item.image}) center/cover no-repeat`;
+    icon.style.background = `url(${item.image}) center/contain no-repeat`;
     icon.style.borderRadius = "0";
   } else {
     icon.style.background = item.color || "white";
