@@ -559,12 +559,20 @@ function draw() {
     drawPlayer(p);
   });
 
-  items.forEach(item => {
+ items.forEach(item => {
+  const radius = item.radius || 8;
+
+  if (item.image) {
+    const img = new Image();
+    img.src = item.image;
+    ctx.drawImage(img, item.x - radius, item.y - radius, radius * 2, radius * 2);
+  } else {
     ctx.beginPath();
-    ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
-    ctx.fillStyle = item.color;
+    ctx.arc(item.x, item.y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = item.color || "cyan";
     ctx.fill();
-  });
+  }
+});
 
   // --- Minimap ---
   const mapWidth = 200;
