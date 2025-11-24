@@ -422,7 +422,8 @@ function drawPlayer(p) {
     ctx.fillStyle = "black";
     ctx.fillRect(x, y, barWidth, barHeight);
 
-    const healthPercent = Math.max(0, p.health) / 100;
+    // ✅ use p.maxHealth instead of hardcoded 100
+    const healthPercent = Math.max(0, p.health) / (p.maxHealth || 100);
     ctx.fillStyle = "lime";
     ctx.fillRect(x, y, barWidth * healthPercent, barHeight);
 
@@ -503,18 +504,25 @@ function drawPlayer(p) {
         const baseX = p.x + (p.orbitDist || 56) * Math.cos(angle);
         const baseY = p.y + (p.orbitDist || 56) * Math.sin(angle);
 
-        // Bounce animation: scale radius for 300ms after respawn
+        // Bounce animation
         let radius = 8;
         if (item.reloadUntil && now < item.reloadUntil + 300) {
-          const t = (now - item.reloadUntil) / 300; // 0 → 1
-          const bounce = Math.sin(t * Math.PI);     // smooth in/out
-          radius = 8 + bounce * 4;                  // grow/shrink
+          const t = (now - item.reloadUntil) / 300;
+          const bounce = Math.sin(t * Math.PI);
+          radius = 8 + bounce * 4;
         }
 
-        ctx.beginPath();
-        ctx.arc(baseX, baseY, radius, 0, Math.PI * 2);
-        ctx.fillStyle = item.color || "cyan";
-        ctx.fill();
+        // ✅ Render Bone (or any image-based petal)
+        if (item.image) {
+          const img = new Image();
+          img.src = item.image;
+          ctx.drawImage(img, baseX - radius, baseY - radius, radius * 2, radius * 2);
+        } else {
+          ctx.beginPath();
+          ctx.arc(baseX, baseY, radius, 0, Math.PI * 2);
+          ctx.fillStyle = item.color || "cyan";
+          ctx.fill();
+        }
       });
     }
   }
