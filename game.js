@@ -341,7 +341,6 @@ const keys = {};
 document.addEventListener("keydown", e => (keys[e.key] = true));
 document.addEventListener("keyup", e => (keys[e.key] = false));
 
-// --- Update / Game logic ---
 function update() {
   // Skip update if player not yet spawned
   if (!player || !player.id) return;
@@ -382,7 +381,7 @@ function update() {
 
   if (socket) socket.emit("orbit_control", { orbitDist: player.orbitDist });
 
-  // Item collisions
+  // Item collisions (pickup requests)
   items.forEach(item => {
     const dist = Math.hypot(player.x - item.x, player.y - item.y);
     if (dist < player.radius + item.radius) {
@@ -390,33 +389,7 @@ function update() {
     }
   });
 
-  // --- Petal collisions ---
-  petals.forEach(petal => {
-    // Petal vs Player
-    const distPlayer = Math.hypot(player.x - petal.x, player.y - petal.y);
-    if (distPlayer < player.radius + petal.radius) {
-      player.health -= petal.damage;
-      petal.health -= player.damage;
-    }
-
-    // Petal vs Other Players
-    Object.values(otherPlayers).forEach(p => {
-      const distOther = Math.hypot(p.x - petal.x, p.y - petal.y);
-      if (distOther < p.radius + petal.radius) {
-        p.health -= petal.damage;
-        petal.health -= p.damage;
-      }
-    });
-
-    // Petal vs Mobs
-    mobs.forEach(mob => {
-      const distMob = Math.hypot(mob.x - petal.x, mob.y - petal.y);
-      if (distMob < mob.radius + petal.radius) {
-        mob.health -= petal.damage;   // mob takes petal damage
-        petal.health -= mob.damage;   // petal loses mob’s damage value
-      }
-    });
-  });
+  // ❌ Removed: Petal collisions (handled server-side)
 
   updateCamera(); // update camera each frame
 }
