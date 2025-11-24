@@ -20,7 +20,7 @@ function makeIcon(item) {
   const icon = document.createElement("div");
   icon.className = "icon";
 
-  // Ensure visibility even if CSS misses
+  // Default circle style
   icon.style.width = "20px";
   icon.style.height = "20px";
   icon.style.borderRadius = "50%";
@@ -28,6 +28,12 @@ function makeIcon(item) {
   icon.style.boxShadow = "0 0 6px rgba(255,255,255,0.8)";
 
   if (item) {
+    // ✅ If item has an image (like Bone), use it instead of background color
+    if (item.image) {
+      icon.style.background = `url(${item.image}) center/cover no-repeat`;
+      icon.style.borderRadius = "0"; // optional: square icon for images
+    }
+
     const tooltip = document.createElement("div");
     tooltip.className = "tooltip";
     tooltip.innerHTML = `
@@ -38,6 +44,12 @@ function makeIcon(item) {
       <div class="tooltip-stat">Rarity: <span>${item.rarity || "common"}</span></div>
       <div class="tooltip-desc">${item.description}</div>
     `;
+
+    // ✅ Add Bone bonus line
+    if (item.name === "Bone") {
+      tooltip.innerHTML += `<div class="tooltip-stat">Bonus: +50% max health per Bone</div>`;
+    }
+
     icon.appendChild(tooltip);
   }
 
