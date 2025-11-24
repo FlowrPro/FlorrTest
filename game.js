@@ -625,7 +625,8 @@ function draw() {
   ctx.beginPath();
   ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
   ctx.fill();
-
+  
+  
   // Draw other players as smaller colored dots
   Object.values(otherPlayers).forEach(p => {
     const ox = miniX + p.x * scaleX;
@@ -634,9 +635,40 @@ function draw() {
     ctx.beginPath();
     ctx.arc(ox, oy, 3, 0, Math.PI * 2);
     ctx.fill();
-  });
+    });
+    // --- HUD ---
+  drawHUD(player); // or drawHUD(selfPlayer) if you track yourself separately
 }
+function drawHUD(self) {
+  if (!self) return;
 
+  const barWidth = 200;
+  const barHeight = 20;
+  const margin = 20;
+
+  const x = ctx.canvas.width - barWidth - margin;
+  const y = ctx.canvas.height - barHeight - margin;
+
+  // Background
+  ctx.fillStyle = "black";
+  ctx.fillRect(x, y, barWidth, barHeight);
+
+  // Health fill
+  const healthPercent = Math.max(0, self.health) / (self.maxHealth || 100);
+  ctx.fillStyle = "lime";
+  ctx.fillRect(x, y, barWidth * healthPercent, barHeight);
+
+  // Border
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, barWidth, barHeight);
+
+  // Text: current/max
+  ctx.fillStyle = "white";
+  ctx.font = "16px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(`${self.health}/${self.maxHealth}`, x + barWidth / 2, y + barHeight - 4);
+}
 // --- Loop ---
 function gameLoop() {
   update();
