@@ -517,7 +517,7 @@ function drawPlayer(p) {
   ctx.strokeStyle = "black";
   ctx.lineWidth = 2;
   ctx.stroke();
-}
+
 
   // Orbiting petals: only draw if alive and not reloading
   if (p.health > 0) {
@@ -554,7 +554,7 @@ function drawPlayer(p) {
       });
     }
   }
-
+}
 function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
   ctx.clearRect(0, 0, canvas.width, canvas.height);
