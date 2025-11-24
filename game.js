@@ -97,7 +97,14 @@ while (chatMessages.children.length > 6) {
 
   // Items update
   socket.on("items_update", its => { items = its; });
+  // Listen for individual item spawns (per-player drops)
+socket.on("item_spawn", drop => {
+  // Add the drop into the local items map
+  items.set(drop.id, drop);
 
+  // Optional: redraw immediately so it appears
+  draw();
+});
   // Inventory update
   socket.on("inventory_update", inv => {
     inventory.splice(0, inventory.length, ...inv);
