@@ -3,6 +3,17 @@ import { setSocket as setMobSocket, setContext as setMobContext, renderMobs } fr
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 setMobContext(ctx);
+const imageCache = {};
+
+function getImage(src) {
+  if (!src) return null;
+  if (!imageCache[src]) {
+    const img = new Image();
+    img.src = src;
+    imageCache[src] = img;
+  }
+  return imageCache[src];
+}  
 // --- Fullscreen canvas setup ---
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -95,12 +106,17 @@ while (chatMessages.children.length > 6) {
     players.forEach(p => (otherPlayers[p.id] = p));
   });
 
-  // Items update
-  socket.on("items_update", its => { items = its; });
-  // Listen for individual item spawns (per-player drops)
+  // Items update (full snapshot from server)
+socket.on("items_update", its => {
+  items.clear();
+  its.forEach(it => items.set(it.id, it));
+});
+
+// Individual item spawn (e.g. mob drops)
 socket.on("item_spawn", drop => {
-  // Add the drop into the local items map
   items.set(drop.id, drop);
+  draw(); // optional immediate redraw
+});
 
   // Optional: redraw immediately so it appears
   draw();
@@ -208,7 +224,8 @@ let retractDist = 41;
 
 // World defaults; server will provide width/height
 let world = { centerX: 800, centerY: 450, mapRadius: 390, width: 1600, height: 900 };
-let items = [];
+// ✅ Use a Map for items keyed by id
+let items = new Map();
 let otherPlayers = {};
 
 // --- Camera state ---
@@ -593,12 +610,10 @@ function draw() {
     drawPlayer(p);
   });
 
- items.forEach(item => {
+Array.from(items.values()).forEach(item => {
   const radius = item.radius || 16;
-
-  if (item.image) {
-    const img = new Image();
-    img.src = item.image;
+  const img = getImage(item.image); // ✅ use cache
+  if (img) {
     ctx.drawImage(img, item.x - radius, item.y - radius, radius * 2, radius * 2);
   } else {
     ctx.beginPath();
