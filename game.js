@@ -120,7 +120,7 @@ socket.on("item_spawn", drop => {
 
   // Optional: redraw immediately so it appears
   draw();
-});
+  
   // Inventory update
   socket.on("inventory_update", inv => {
     inventory.splice(0, inventory.length, ...inv);
